@@ -61,6 +61,32 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled
 }
 
+// Get today's date string for daily challenge seed
+function getTodayDateString(): string {
+  const today = new Date()
+  return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
+}
+
+// Simple seeded random number generator
+function seededRandom(seed: string): number {
+  let hash = 0
+  for (let i = 0; i < seed.length; i++) {
+    const char = seed.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // Convert to 32bit integer
+  }
+  // Convert to a number between 0 and 1
+  return Math.abs(hash % 10000) / 10000
+}
+
+// Get the daily capital based on today's date
+function getDailyCapital(capitals: Capital[]): Capital {
+  const dateString = getTodayDateString()
+  const randomValue = seededRandom(dateString)
+  const index = Math.floor(randomValue * capitals.length)
+  return capitals[index]
+}
+
 function App() {
   const isMobile = useIsMobile()
   const [currentCapital, setCurrentCapital] = useState<Capital | null>(null)
@@ -113,9 +139,16 @@ function App() {
   })
 
   const isUSStatesMode = region === 'US States'
+  const isDailyMode = region === 'Daily'
+
+  // Track daily challenge completion
+  const [dailyCompleted, setDailyCompleted] = useState(() => {
+    const saved = localStorage.getItem('mapitals-daily-completed')
+    return saved === getTodayDateString()
+  })
 
   const capitalsForRegion = useMemo(() => 
-    region === 'World' ? CAPITALS : CAPITALS.filter(c => c.region === region),
+    region === 'World' || region === 'Daily' ? CAPITALS : CAPITALS.filter(c => c.region === region),
   [region]
   )
 
@@ -183,7 +216,11 @@ function App() {
   }, [shuffledStateCapitals, stateCapitalIndex])
 
   const startNewGame = useCallback(() => {
-    if (isUSStatesMode) {
+    if (isDailyMode) {
+      // Daily mode: use the same capital for everyone based on today's date
+      setCurrentCapital(getDailyCapital(CAPITALS))
+      setCurrentStateCapital(null)
+    } else if (isUSStatesMode) {
       setCurrentStateCapital(getNextStateCapital())
       setCurrentCapital(null)
     } else {
@@ -197,17 +234,19 @@ function App() {
     setIsInitialLoad(true)
     setShouldPan(false)
     setTimeout(() => setIsInitialLoad(false), 100)
-  }, [getNextCapital, getNextStateCapital, isUSStatesMode])
+  }, [getNextCapital, getNextStateCapital, isUSStatesMode, isDailyMode])
 
   // Initialize game on first load
   useEffect(() => {
-    // Wait for shuffled lists to be ready before starting
-    if (!isUSStatesMode && shuffledCapitals.length > 0) {
+    // Daily mode doesn't need shuffled lists
+    if (isDailyMode) {
+      startNewGame()
+    } else if (!isUSStatesMode && shuffledCapitals.length > 0) {
       startNewGame()
     } else if (isUSStatesMode && shuffledStateCapitals.length > 0) {
       startNewGame()
     }
-  }, [shuffledCapitals.length, shuffledStateCapitals.length])
+  }, [shuffledCapitals.length, shuffledStateCapitals.length, isDailyMode])
 
   // Start new game when region changes (after shuffle is done)
   const prevRegionRef = useRef<Region | null>(null)
@@ -278,9 +317,14 @@ function App() {
           setBestStreak(best => Math.max(best, newStreak))
           return newStreak
         })
+        // Mark daily challenge as completed
+        if (isDailyMode) {
+          setDailyCompleted(true)
+          localStorage.setItem('mapitals-daily-completed', getTodayDateString())
+        }
       }
     }
-  }, [gameOver, guessedLetters, currentCapital, currentStateCapital, wrongGuesses, isUSStatesMode])
+  }, [gameOver, guessedLetters, currentCapital, currentStateCapital, wrongGuesses, isUSStatesMode, isDailyMode])
 
   const handleGiveUp = useCallback(() => {
     if (gameOver) return
@@ -363,6 +407,7 @@ function App() {
                   <SelectValue placeholder="Region" />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-600" style={{ zIndex: 9999 }}>
+                  <SelectItem value="Daily" className="text-amber-400 hover:bg-slate-700">Daily Challenge</SelectItem>
                   <SelectItem value="World" className="text-white hover:bg-slate-700">World</SelectItem>
                   <SelectItem value="Americas" className="text-white hover:bg-slate-700">Americas</SelectItem>
                   <SelectItem value="Europe" className="text-white hover:bg-slate-700">Europe</SelectItem>
@@ -440,7 +485,7 @@ function App() {
             <div className="absolute inset-x-0 top-16 flex justify-center" style={{ zIndex: 1001 }}>
               <div className="bg-slate-800/95 border border-slate-600 text-white max-w-md rounded-xl p-6 backdrop-blur-sm mx-4">
                 <h2 className={`text-2xl font-bold mb-4 ${won ? "text-emerald-400" : "text-red-400"}`}>
-                  {won ? "Congratulations!" : "Game Over!"}
+                  {won ? (isDailyMode ? "Daily Challenge Complete!" : "Congratulations!") : "Game Over!"}
                 </h2>
                 <p className="text-xl mb-2">
                   The answer was: <span className="font-bold text-emerald-400">{isUSStatesMode ? currentStateCapital?.city : currentCapital?.city}</span>, <span className="font-bold text-amber-400">{isUSStatesMode ? currentStateCapital?.state : currentCapital?.country}</span>
@@ -450,12 +495,18 @@ function App() {
                     Points earned: <span className="text-emerald-400 font-bold">+{MAX_WRONG_GUESSES - wrongGuesses}</span>
                   </p>
                 )}
-                <Button 
-                  onClick={startNewGame}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white mt-4"
-                >
-                  Play Again
-                </Button>
+                {isDailyMode && dailyCompleted ? (
+                  <p className="text-slate-400 text-sm mt-4">
+                    Come back tomorrow for a new daily challenge!
+                  </p>
+                ) : (
+                  <Button 
+                    onClick={startNewGame}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white mt-4"
+                  >
+                    {isDailyMode ? "Try Again" : "Play Again"}
+                  </Button>
+                )}
               </div>
             </div>
           )}

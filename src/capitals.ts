@@ -1,11 +1,11 @@
-export type Region = 'World' | 'Americas' | 'Europe' | 'Asia' | 'Africa' | 'Oceania' | 'US States'
+export type Region = 'World' | 'Americas' | 'Europe' | 'Asia' | 'Africa' | 'Oceania' | 'US States' | 'Daily'
 
 export interface Capital {
   city: string
   country: string
   lat: number
   lng: number
-  region: Exclude<Region, 'World' | 'US States'>
+  region: Exclude<Region, 'World' | 'US States' | 'Daily'>
 }
 
 export interface StateCapital {
