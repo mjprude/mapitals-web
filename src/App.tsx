@@ -73,6 +73,7 @@ function App() {
   const [showInfo, setShowInfo] = useState(false)
   const [shouldPan, setShouldPan] = useState(false)
   const [isRegionMenuOpen, setIsRegionMenuOpen] = useState(false)
+  const keyboardRef = useRef<HTMLDivElement | null>(null)
   
   // Shuffled lists and indices for each category to avoid repeats
   const [shuffledCapitals, setShuffledCapitals] = useState<Capital[]>([])
@@ -308,7 +309,12 @@ function App() {
               </Button>
               <Select 
                 value={region} 
-                onValueChange={(value) => setRegion(value as Region)}
+                onValueChange={(value) => {
+                  setRegion(value as Region)
+                  setTimeout(() => {
+                    keyboardRef.current?.focus()
+                  }, 0)
+                }}
                 onOpenChange={setIsRegionMenuOpen}
               >
                 <SelectTrigger className="w-32 bg-slate-700 border-slate-600 text-white">
@@ -441,7 +447,7 @@ function App() {
                 </div>
               </div>
 
-              <div className="bg-slate-900/80 backdrop-blur-sm rounded-lg px-2 py-2" aria-label="Guess a letter">
+              <div ref={keyboardRef} tabIndex={-1} className="bg-slate-900/80 backdrop-blur-sm rounded-lg px-2 py-2" aria-label="Guess a letter">
                 <div className="flex flex-wrap justify-center gap-1">
                   {alphabet.map(letter => {
                     const isGuessed = guessedLetters.has(letter.toLowerCase())
