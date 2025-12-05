@@ -11,12 +11,12 @@ import { useIsMobile } from './hooks/use-mobile'
 
 const MAX_WRONG_GUESSES = 6
 
+// US center coordinates (roughly center of continental US)
+const US_CENTER: [number, number] = [39.8, -98.5]
+
 function MapController({ zoom, center, isInitial, shouldPan, gameOver, isUSStatesMode }: { zoom: number; center: [number, number]; isInitial: boolean; shouldPan: boolean; gameOver: boolean; isUSStatesMode: boolean }) {
   const map = useMap()
   const hasInitialized = useRef(false)
-  
-  // US center coordinates (roughly center of continental US)
-  const US_CENTER: [number, number] = [39.8, -98.5]
   
   useEffect(() => {
     if (!hasInitialized.current || isInitial) {
@@ -207,7 +207,7 @@ function App() {
     } else if (isUSStatesMode && shuffledStateCapitals.length > 0) {
       startNewGame()
     }
-  }, [shuffledCapitals.length, shuffledStateCapitals.length])
+  }, [shuffledCapitals.length, shuffledStateCapitals.length, isUSStatesMode, startNewGame])
 
   // Start new game when region changes (after shuffle is done)
   const prevRegionRef = useRef<Region | null>(null)
@@ -381,8 +381,8 @@ function App() {
                 </span>
               )}
               <span className="text-sm">
-                {!isMobile && 'Streak: '}<span className="text-amber-400 font-bold">{currentStreak}</span>
-                {bestStreak > 0 && <span className="text-slate-400 text-xs ml-1">(best: {bestStreak})</span>}
+                Streak: <span className="text-amber-400 font-bold">{currentStreak}</span>
+                {!isMobile && bestStreak > 0 && <span className="text-slate-400 text-xs ml-1">(best: {bestStreak})</span>}
               </span>
             </div>
           </div>
