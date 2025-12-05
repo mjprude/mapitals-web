@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css'
 import './App.css'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Info, X } from 'lucide-react'
+import { Info, X, Flag } from 'lucide-react'
 
 import { Region, Capital, StateCapital, CAPITALS, US_STATE_CAPITALS } from './capitals'
 
@@ -253,6 +253,13 @@ function App() {
     }
   }, [gameOver, guessedLetters, currentCapital, currentStateCapital, wrongGuesses, isUSStatesMode])
 
+  const handleGiveUp = useCallback(() => {
+    if (gameOver) return
+    setGameOver(true)
+    setWon(false)
+    setGamesPlayed(prev => prev + 1)
+  }, [gameOver])
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       // Ignore keypresses while the region dropdown is open
@@ -373,10 +380,21 @@ function App() {
             </MapContainer>
           </div>
             
-          <div className="absolute top-4 left-4 bg-slate-900/80 px-4 py-2 rounded-lg backdrop-blur-sm" style={{ zIndex: 1000 }}>
+          <div className="absolute top-4 left-4 bg-slate-900/80 px-4 py-2 rounded-lg backdrop-blur-sm flex items-center gap-3" style={{ zIndex: 1000 }}>
             <span className="text-red-400 font-bold">
               Wrong guesses: {wrongGuesses} / {MAX_WRONG_GUESSES}
             </span>
+            {!gameOver && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleGiveUp}
+                className="text-slate-400 hover:text-white hover:bg-slate-700 h-7 px-2 text-xs"
+              >
+                <Flag size={14} className="mr-1" />
+                Give Up
+              </Button>
+            )}
           </div>
 
           {gameOver && (
