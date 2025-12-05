@@ -102,6 +102,16 @@ function App() {
     return saved ? parseInt(saved, 10) : 0
   })
 
+  // Streak tracking
+  const [currentStreak, setCurrentStreak] = useState(() => {
+    const saved = localStorage.getItem('mapitals-current-streak')
+    return saved ? parseInt(saved, 10) : 0
+  })
+  const [bestStreak, setBestStreak] = useState(() => {
+    const saved = localStorage.getItem('mapitals-best-streak')
+    return saved ? parseInt(saved, 10) : 0
+  })
+
   const isUSStatesMode = region === 'US States'
 
   const capitalsForRegion = useMemo(() =>
@@ -118,6 +128,15 @@ function App() {
   useEffect(() => {
     localStorage.setItem('mapitals-games-played', gamesPlayed.toString())
   }, [gamesPlayed])
+
+  // Save streaks to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('mapitals-current-streak', currentStreak.toString())
+  }, [currentStreak])
+
+  useEffect(() => {
+    localStorage.setItem('mapitals-best-streak', bestStreak.toString())
+  }, [bestStreak])
 
   // Shuffle capitals when region changes (for non-US States modes)
   useEffect(() => {
@@ -242,6 +261,8 @@ function App() {
       if (newWrongGuesses >= MAX_WRONG_GUESSES) {
         setGameOver(true)
         setGamesPlayed(prev => prev + 1)
+        // Reset streak on loss
+        setCurrentStreak(0)
       }
     } else {
       const tempGuessed = new Set(newGuessedLetters)
@@ -251,6 +272,12 @@ function App() {
         setWon(true)
         setScore(prev => prev + (MAX_WRONG_GUESSES - wrongGuesses))
         setGamesPlayed(prev => prev + 1)
+        // Update streaks on win
+        setCurrentStreak(prev => {
+          const newStreak = prev + 1
+          setBestStreak(best => Math.max(best, newStreak))
+          return newStreak
+        })
       }
     }
   }, [gameOver, guessedLetters, currentCapital, currentStateCapital, wrongGuesses, isUSStatesMode])
@@ -260,6 +287,8 @@ function App() {
     setGameOver(true)
     setWon(false)
     setGamesPlayed(prev => prev + 1)
+    // Reset streak on give up
+    setCurrentStreak(0)
   }, [gameOver])
 
   useEffect(() => {
