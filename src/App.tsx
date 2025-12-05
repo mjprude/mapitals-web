@@ -186,8 +186,7 @@ function App() {
     } else if (isUSStatesMode && shuffledStateCapitals.length > 0) {
       startNewGame()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shuffledCapitals.length, shuffledStateCapitals.length])
+  }, [shuffledCapitals.length, shuffledStateCapitals.length, isUSStatesMode, startNewGame])
 
   // Start new game when region changes (after shuffle is done)
   const prevRegionRef = useRef<Region | null>(null)
