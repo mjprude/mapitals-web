@@ -335,8 +335,9 @@ function App() {
   const [countryGeoJson, setCountryGeoJson] = useState<GeoJSON.FeatureCollection | null>(null)
   const [region, setRegion] = useState<Region>('World')
   const [isInitialLoad, setIsInitialLoad] = useState(true)
-  const [showInfo, setShowInfo] = useState(false)
-  const [shouldPan, setShouldPan] = useState(false)
+    const [showInfo, setShowInfo] = useState(false)
+    const [shouldPan, setShouldPan] = useState(false)
+    const [isRegionMenuOpen, setIsRegionMenuOpen] = useState(false)
   
   // Shuffled lists and indices for each category to avoid repeats
   const [shuffledCapitals, setShuffledCapitals] = useState<Capital[]>([])
@@ -509,6 +510,9 @@ function App() {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      // Ignore keypresses while the region dropdown is open
+      if (isRegionMenuOpen) return
+      
       const el = document.activeElement as HTMLElement | null
       if (el && ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)) return
       if (e.metaKey || e.ctrlKey || e.altKey) return
@@ -527,8 +531,8 @@ function App() {
       window.addEventListener('keydown', onKeyDown)
     }
 
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [gameOver, handleGuess])
+      return () => window.removeEventListener('keydown', onKeyDown)
+    }, [gameOver, handleGuess, isRegionMenuOpen])
 
   // Keep zoom constant - first two levels are the same so first wrong guess only pans
   const ADJUSTED_ZOOM_LEVELS = [2, 2, 3, 3.5, 4, 5, 6]
@@ -567,10 +571,14 @@ function App() {
               >
                 <Info size={20} />
               </Button>
-              <Select value={region} onValueChange={(value) => setRegion(value as Region)}>
-                <SelectTrigger className="w-32 bg-slate-700 border-slate-600 text-white">
-                  <SelectValue placeholder="Region" />
-                </SelectTrigger>
+                            <Select 
+                              value={region} 
+                              onValueChange={(value) => setRegion(value as Region)}
+                              onOpenChange={setIsRegionMenuOpen}
+                            >
+                              <SelectTrigger className="w-32 bg-slate-700 border-slate-600 text-white">
+                                <SelectValue placeholder="Region" />
+                              </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-600" style={{ zIndex: 9999 }}>
                   <SelectItem value="World" className="text-white hover:bg-slate-700">World</SelectItem>
                   <SelectItem value="Americas" className="text-white hover:bg-slate-700">Americas</SelectItem>
