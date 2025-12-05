@@ -344,11 +344,13 @@ function App() {
                 </SelectContent>
               </Select>
               <span className="text-sm">
-                {!isMobile && 'Score: '}<span className="text-emerald-400 font-bold">{score}</span>
+                Score: <span className="text-emerald-400 font-bold">{score}</span>
               </span>
-              <span className="text-sm">
-                {!isMobile && 'Games: '}<span className="text-emerald-400 font-bold">{gamesPlayed}</span>
-              </span>
+              {!isMobile && (
+                <span className="text-sm">
+                  Games: <span className="text-emerald-400 font-bold">{gamesPlayed}</span>
+                </span>
+              )}
             </div>
           </div>
         </header>
