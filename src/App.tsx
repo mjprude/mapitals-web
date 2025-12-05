@@ -418,11 +418,13 @@ function App() {
                 </SelectContent>
               </Select>
               <span className="text-sm">
-                {!isMobile && 'Score: '}<span className="text-emerald-400 font-bold">{score}</span>
+                Score: <span className="text-emerald-400 font-bold">{score}</span>
               </span>
-              <span className="text-sm">
-                {!isMobile && 'Games: '}<span className="text-emerald-400 font-bold">{gamesPlayed}</span>
-              </span>
+              {!isMobile && (
+                <span className="text-sm">
+                  Games: <span className="text-emerald-400 font-bold">{gamesPlayed}</span>
+                </span>
+              )}
               <span className="text-sm">
                 {!isMobile && 'Streak: '}<span className="text-amber-400 font-bold">{currentStreak}</span>
                 {bestStreak > 0 && <span className="text-slate-400 text-xs ml-1">(best: {bestStreak})</span>}
