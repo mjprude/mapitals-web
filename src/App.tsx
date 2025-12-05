@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Info, X, Flag } from 'lucide-react'
 
 import { Region, Capital, StateCapital, CAPITALS, US_STATE_CAPITALS } from './capitals'
+import { useIsMobile } from './hooks/use-mobile'
 
 const MAX_WRONG_GUESSES = 6
 
@@ -61,6 +62,7 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 function App() {
+  const isMobile = useIsMobile()
   const [currentCapital, setCurrentCapital] = useState<Capital | null>(null)
   const [currentStateCapital, setCurrentStateCapital] = useState<StateCapital | null>(null)
   const [guessedLetters, setGuessedLetters] = useState<Set<string>>(new Set())
@@ -341,8 +343,12 @@ function App() {
                   <SelectItem value="US States" className="text-white hover:bg-slate-700">US States</SelectItem>
                 </SelectContent>
               </Select>
-              <span className="text-sm">Score: <span className="text-emerald-400 font-bold">{score}</span></span>
-              <span className="text-sm">Games: <span className="text-emerald-400 font-bold">{gamesPlayed}</span></span>
+              <span className="text-sm">
+                {!isMobile && 'Score: '}<span className="text-emerald-400 font-bold">{score}</span>
+              </span>
+              <span className="text-sm">
+                {!isMobile && 'Games: '}<span className="text-emerald-400 font-bold">{gamesPlayed}</span>
+              </span>
             </div>
           </div>
         </header>
@@ -485,7 +491,7 @@ function App() {
                         disabled={isGuessed || gameOver}
                         variant="outline"
                         className={`
-                          h-7 w-7 sm:h-8 sm:w-8 p-0 font-bold text-xs sm:text-sm
+                          ${isMobile ? 'h-9 w-9 text-sm' : 'h-7 w-7 sm:h-8 sm:w-8 text-xs sm:text-sm'} p-0 font-bold
                           ${isGuessed 
                         ? isCorrect 
                           ? 'bg-emerald-600 border-emerald-600 text-white' 
