@@ -131,7 +131,7 @@ export function GameOverModal({
     <div className="absolute inset-x-0 top-16 flex justify-center" style={{ zIndex: 1001 }}>
       <div 
         ref={modalRef}
-        className="bg-purple-900/80 border border-purple-400/30 text-white max-w-md rounded-xl p-6 backdrop-blur-sm mx-4 select-none"
+        className="bg-gradient-to-br from-[#7751f8] to-[#4c1d95] border-2 border-violet-300/50 text-white max-w-md rounded-2xl p-6 backdrop-blur-sm mx-4 select-none shadow-2xl shadow-purple-500/40"
         style={{ 
           transform: `translate(${position.x}px, ${position.y}px)`,
           cursor: isDragging ? 'grabbing' : 'default'
@@ -139,39 +139,39 @@ export function GameOverModal({
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
       >
-        <div className="drag-handle flex items-center justify-center mb-2 cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-300">
+        <div className="drag-handle flex items-center justify-center mb-2 cursor-grab active:cursor-grabbing text-white/50 hover:text-white/70">
           <GripHorizontal size={20} />
         </div>
-        <h2 className={`text-2xl font-bold mb-4 ${won ? "text-emerald-400" : "text-red-400"}`}>
+        <h2 className={`text-3xl font-bold mb-4 ${won ? "text-amber-300 drop-shadow-lg" : "text-rose-300 drop-shadow-lg"}`}>
           {won ? "Congratulations!" : "Game Over!"}
         </h2>
         <p className="text-xl mb-2">
-                  The answer was: <span className="font-bold text-yellow-300">{city}</span>, <span className="font-bold text-cyan-300">{regionName}</span>
+          The answer was: <span className="font-bold text-amber-300">{city}</span>, <span className="font-bold text-cyan-300">{regionName}</span>
         </p>
         {won && (
           <p className="text-lg mb-4">
-                    Points earned: <span className="text-yellow-300 font-bold">+{MAX_WRONG_GUESSES - wrongGuesses}</span>
+            Points earned: <span className="bg-amber-400 text-purple-900 px-2 py-0.5 rounded-full font-bold">+{MAX_WRONG_GUESSES - wrongGuesses}</span>
           </p>
         )}
         
-        <div className="mt-4 p-3 bg-purple-800/50 rounded-lg border border-purple-400/20">
-          <h3 className="text-sm font-semibold text-white/80 mb-2">
-                    About {regionName}
+        <div className="mt-4 p-3 bg-white/10 rounded-xl border border-white/20">
+          <h3 className="text-sm font-bold text-cyan-300 mb-2 uppercase tracking-wide">
+            About {regionName}
           </h3>
           {isLoadingWikipedia ? (
             <p className="text-sm text-white/60 italic">Loading...</p>
           ) : wikipediaBlurb ? (
             <>
-              <p className="text-sm text-white/80 leading-relaxed mb-2">
+              <p className="text-sm text-white/90 leading-relaxed mb-2">
                 {wikipediaBlurb.extract}
               </p>
               <a 
                 href={wikipediaBlurb.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-sm text-cyan-300 hover:text-cyan-200 transition-colors"
+                className="inline-flex items-center gap-1 text-sm text-cyan-300 hover:text-cyan-200 transition-colors font-semibold"
               >
-                        Read more on Wikipedia <ExternalLink size={14} />
+                Read more on Wikipedia <ExternalLink size={14} />
               </a>
             </>
           ) : (
@@ -181,9 +181,9 @@ export function GameOverModal({
 
         <Button
           onClick={onPlayAgain}
-          className="w-full bg-green-600 hover:bg-green-700 text-white mt-4"
+          className="w-full bg-gradient-to-r from-emerald-400 to-emerald-600 hover:from-emerald-300 hover:to-emerald-500 text-white mt-4 font-bold text-lg py-3 rounded-xl shadow-lg shadow-emerald-500/40 transition-all hover:scale-[1.02]"
         >
-                  Play Again
+          Play Again
         </Button>
       </div>
     </div>

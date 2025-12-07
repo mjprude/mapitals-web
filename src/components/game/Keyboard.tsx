@@ -17,10 +17,10 @@ export const Keyboard = forwardRef<HTMLDivElement, KeyboardProps>(
       <div 
         ref={ref} 
         tabIndex={-1} 
-        className="bg-purple-900/80 backdrop-blur-sm rounded-lg px-2 py-2 outline-none border border-purple-400/20" 
+        className="bg-white/10 backdrop-blur-sm rounded-xl px-3 py-3 outline-none shadow-lg" 
         aria-label="Guess a letter"
       >
-        <div className="flex flex-wrap justify-center gap-1">
+        <div className="flex flex-wrap justify-center gap-1.5">
           {ALPHABET.map(letter => {
             const isGuessed = guessedLetters.has(letter.toLowerCase())
             const isCorrect = fullText.includes(letter.toLowerCase())
@@ -32,12 +32,12 @@ export const Keyboard = forwardRef<HTMLDivElement, KeyboardProps>(
                 disabled={isGuessed || gameOver}
                 variant="outline"
                 className={`
-                  ${isMobile ? 'h-9 w-9 text-sm' : 'h-7 w-7 sm:h-8 sm:w-8 text-xs sm:text-sm'} p-0 font-bold
+                  ${isMobile ? 'h-10 w-10 text-base' : 'h-8 w-8 sm:h-9 sm:w-9 text-sm sm:text-base'} p-0 font-bold rounded-lg transition-all
                   ${isGuessed
                 ? isCorrect
-                  ? 'bg-green-600 border-green-600 text-white'
-                  : 'bg-red-500 border-red-500 text-white'
-                : 'bg-purple-700/80 border-purple-500/50 text-white hover:bg-purple-600'
+                  ? 'bg-gradient-to-b from-emerald-400 to-emerald-600 border-emerald-300 text-white shadow-md shadow-emerald-500/40'
+                  : 'bg-gradient-to-b from-rose-400 to-rose-600 border-rose-300 text-white shadow-md shadow-rose-500/40'
+                : 'bg-gradient-to-b from-violet-400 to-[#7751f8] border-violet-300 text-white hover:from-violet-300 hover:to-violet-500 shadow-md shadow-violet-500/30 hover:scale-105'
               }
                 `}
               >

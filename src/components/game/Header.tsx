@@ -82,7 +82,7 @@ export function Header({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <header className="bg-[#7751f8] p-3 shadow-lg z-50">
+      <header className="bg-gradient-to-r from-[#7751f8] via-[#8b5cf6] to-[#06b6d4] p-3 shadow-lg z-50">
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold text-white">Mapitals</h1>
           <div className="flex items-center gap-4">
@@ -133,7 +133,7 @@ export function Header({
               onValueChange={(value) => setRegion(value as Region)}
               onOpenChange={onOpenChange}
             >
-              <SelectTrigger className="w-32 bg-purple-900/50 border-purple-400/30 text-white">
+              <SelectTrigger className="w-32 bg-white/20 border-white/30 text-white hover:bg-white/30">
                 <SelectValue placeholder="Region" />
               </SelectTrigger>
               <SelectContent className="bg-slate-800 border-slate-600" style={{ zIndex: 9999 }}>
@@ -146,20 +146,26 @@ export function Header({
                 <SelectItem value="US States" className="text-white hover:bg-slate-700">US States</SelectItem>
               </SelectContent>
             </Select>
-            <div className={isMobile ? "flex flex-col items-center text-xs" : "flex items-baseline gap-1 text-sm"}>
-              <span className="whitespace-nowrap text-white/80">{isMobile ? "Score" : "Score:"}</span>
-              <span className="text-yellow-300 font-bold">{score}</span>
+            <div className={isMobile ? "flex flex-col items-center text-xs" : "flex items-center gap-2 text-sm"}>
+              <span className="bg-white/20 px-2 py-1 rounded-full">
+                <span className="text-white/90">{isMobile ? "" : "Score: "}</span>
+                <span className="text-amber-300 font-bold">{score}</span>
+              </span>
             </div>
             {!isMobile && (
-              <div className="flex items-baseline gap-1 text-sm">
-                <span className="whitespace-nowrap text-white/80">Games:</span>
-                <span className="text-yellow-300 font-bold">{gamesPlayed}</span>
+              <div className="flex items-center gap-2 text-sm">
+                <span className="bg-white/20 px-2 py-1 rounded-full">
+                  <span className="text-white/90">Games: </span>
+                  <span className="text-amber-300 font-bold">{gamesPlayed}</span>
+                </span>
               </div>
             )}
-            <div className={isMobile ? "flex flex-col items-center text-xs" : "flex items-baseline gap-1 text-sm"}>
-              <span className="whitespace-nowrap text-white/80">{isMobile ? "Streak" : "Streak:"}</span>
-              <span className="text-cyan-300 font-bold">{currentStreak}</span>
-              {!isMobile && bestStreak > 0 && <span className="text-white/60 text-xs ml-1">(best: {bestStreak})</span>}
+            <div className={isMobile ? "flex flex-col items-center text-xs" : "flex items-center gap-2 text-sm"}>
+              <span className="bg-white/20 px-2 py-1 rounded-full">
+                <span className="text-white/90">{isMobile ? "" : "Streak: "}</span>
+                <span className="text-pink-300 font-bold">{currentStreak}</span>
+                {!isMobile && bestStreak > 0 && <span className="text-white/60 text-xs ml-1">(best: {bestStreak})</span>}
+              </span>
             </div>
           </div>
         </div>

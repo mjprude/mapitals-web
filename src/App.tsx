@@ -434,19 +434,19 @@ function App() {
             </MapContainer>
           </div>
 
-          <div className="absolute top-4 left-4 bg-purple-900/80 px-4 py-2 rounded-lg backdrop-blur-sm flex items-center gap-3 border border-purple-400/20" style={{ zIndex: 1000 }}>
-            <span className="text-red-300 font-bold">
-                        Wrong guesses: {wrongGuesses} / {MAX_WRONG_GUESSES}
+          <div className="absolute top-4 left-4 bg-gradient-to-r from-rose-500 to-pink-500 px-4 py-2 rounded-xl backdrop-blur-sm flex items-center gap-3 shadow-lg shadow-rose-500/30" style={{ zIndex: 1000 }}>
+            <span className="text-white font-bold">
+              Wrong guesses: {wrongGuesses} / {MAX_WRONG_GUESSES}
             </span>
             {!gameOver && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleGiveUp}
-                className="text-white/70 hover:text-white hover:bg-purple-700/50 h-7 px-2 text-xs"
+                className="text-white/80 hover:text-white hover:bg-white/20 h-7 px-2 text-xs rounded-lg"
               >
                 <Flag size={14} className="mr-1" />
-                          Give Up
+                Give Up
               </Button>
             )}
           </div>
