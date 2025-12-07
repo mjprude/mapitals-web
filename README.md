@@ -1,52 +1,118 @@
-# A geography guessing game
+# Mapitals
 
-## React + TypeScript + Vite
+A geography guessing game where players identify capital cities by guessing letters, similar to hangman. The game features an interactive map that progressively zooms in with each wrong guess, providing visual hints about the location.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Features
 
-Currently, two official plugins are available:
+Mapitals offers multiple play modes including World capitals and region-specific options (Americas, Europe, Asia, Africa, Oceania, and US States). Players guess letters to reveal a hidden capital city and its country or state name. Each wrong guess zooms the map closer to the target location, with a maximum of 6 wrong guesses allowed before the game ends. The score is calculated based on efficiency: `6 - wrongGuesses` for each successful game.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The game tracks your progress with persistent statistics including total score, games played, current streak, and best streak. Completed capitals are marked with stars on the map, giving you a visual representation of your geography knowledge.
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+The application is built with React 18 and TypeScript, using Vite as the build tool for fast development and optimized production builds. The interactive map is powered by Leaflet with react-leaflet bindings. UI components are built using shadcn/ui (Radix UI primitives with Tailwind CSS styling).
 
-- Configure the top-level `parserOptions` property like this:
+## Getting Started
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### Prerequisites
+
+- Node.js 20 or higher
+- npm
+
+### Installation
+
+```bash
+git clone https://github.com/mjprude/mapitals-v2.git
+cd mapitals-v2
+npm install
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### Development
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+Start the development server with hot module replacement:
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```bash
+npm run dev
 ```
+
+The app will be available at `http://localhost:5173`.
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start the development server |
+| `npm run build` | Type check and build for production |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint to check for code issues |
+| `npm run test` | Run the test suite once |
+| `npm run test:watch` | Run tests in watch mode |
+
+## Testing
+
+The project uses Vitest for testing with React Testing Library for component testing. Tests are located alongside source files with the `.test.ts` or `.test.tsx` extension.
+
+Run the test suite:
+
+```bash
+npm run test
+```
+
+Run tests in watch mode during development:
+
+```bash
+npm run test:watch
+```
+
+## Linting
+
+ESLint is configured with TypeScript and React-specific rules. Always ensure linting passes before committing changes:
+
+```bash
+npm run lint
+```
+
+## Building for Production
+
+Build the application for production:
+
+```bash
+npm run build
+```
+
+This command runs TypeScript type checking followed by the Vite build process. The output is placed in the `dist` directory.
+
+Preview the production build locally:
+
+```bash
+npm run preview
+```
+
+## Project Structure
+
+```
+mapitals-v2/
+├── public/                 # Static assets
+├── src/
+│   ├── components/
+│   │   ├── game/          # Game-specific components
+│   │   └── ui/            # shadcn/ui component library
+│   ├── constants/         # Game constants
+│   ├── hooks/             # Custom React hooks
+│   ├── lib/               # Utility functions
+│   ├── test/              # Test setup
+│   ├── utils/             # Helper utilities
+│   ├── App.tsx            # Main game component
+│   ├── capitals.ts        # Capital city data
+│   └── capitals.test.ts   # Tests for capital data
+├── .github/workflows/     # CI configuration
+└── package.json
+```
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
