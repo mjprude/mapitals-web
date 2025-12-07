@@ -20,8 +20,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Switch } from '@/components/ui/switch'
-import { Info, Settings } from 'lucide-react'
+import { Info, Settings, Calendar, Dumbbell } from 'lucide-react'
 import { Region } from '@/capitals'
+import { GameMode } from '@/utils/daily'
 
 interface HeaderProps {
   region: Region
@@ -36,6 +37,9 @@ interface HeaderProps {
   showStars: boolean
   setShowStars: (show: boolean) => void
   onResetHistory: () => void
+  gameMode: GameMode
+  setGameMode: (mode: GameMode) => void
+  dailyCompleted: boolean
 }
 
 export function Header({
@@ -51,6 +55,9 @@ export function Header({
   showStars,
   setShowStars,
   onResetHistory,
+  gameMode,
+  setGameMode,
+  dailyCompleted,
 }: HeaderProps) {
   const [showResetDialog, setShowResetDialog] = useState(false)
 
@@ -84,7 +91,40 @@ export function Header({
       </AlertDialog>
       <header className="bg-slate-800/90 p-3 shadow-lg z-50">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-emerald-400">Mapitals</h1>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold text-emerald-400">Mapitals</h1>
+            <div className="flex bg-slate-700 rounded-lg p-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setGameMode('daily')}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                  gameMode === 'daily'
+                    ? 'bg-emerald-600 text-white hover:bg-emerald-600'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-600'
+                }`}
+              >
+                <Calendar size={16} className="mr-1" />
+                {!isMobile && 'Daily'}
+                {dailyCompleted && gameMode === 'daily' && (
+                  <span className="ml-1 text-xs text-emerald-300">(done)</span>
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setGameMode('practice')}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                  gameMode === 'practice'
+                    ? 'bg-amber-600 text-white hover:bg-amber-600'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-600'
+                }`}
+              >
+                <Dumbbell size={16} className="mr-1" />
+                {!isMobile && 'Practice'}
+              </Button>
+            </div>
+          </div>
           <div className="flex items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
