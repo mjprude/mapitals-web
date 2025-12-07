@@ -122,6 +122,7 @@ function App() {
   const [shouldPan, setShouldPan] = useState(false)
   const [isRegionMenuOpen, setIsRegionMenuOpen] = useState(false)
   const keyboardRef = useRef<HTMLDivElement | null>(null)
+  const hasGameInitializedRef = useRef(false)
 
   const handleOpenChange = (open: boolean) => {
     setIsRegionMenuOpen(open)
@@ -245,13 +246,17 @@ function App() {
     setTimeout(() => setIsInitialLoad(false), 100)
   }, [getNextCapital, getNextStateCapital, isUSStatesMode])
 
-  // Initialize game on first load
+  // Initialize game on first load (only once)
   useEffect(() => {
+    if (hasGameInitializedRef.current) return
+    
     // Wait for shuffled lists to be ready before starting
     if (!isUSStatesMode && shuffledCapitals.length > 0) {
       startNewGame()
+      hasGameInitializedRef.current = true
     } else if (isUSStatesMode && shuffledStateCapitals.length > 0) {
       startNewGame()
+      hasGameInitializedRef.current = true
     }
   }, [shuffledCapitals.length, shuffledStateCapitals.length, isUSStatesMode, startNewGame])
 
