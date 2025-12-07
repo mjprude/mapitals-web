@@ -15,7 +15,9 @@ import {
   GameOverModal, 
   InfoModal, 
   Keyboard, 
-  GameDisplay 
+  GameDisplay,
+  StarMarkers,
+  CompletedCapital
 } from './components/game'
 
 function App() {
@@ -36,6 +38,10 @@ function App() {
   const [showOutline, setShowOutline] = useState(false)
   const keyboardRef = useRef<HTMLDivElement | null>(null)
   const hasGameInitializedRef = useRef(false)
+  const [completedCapitals, setCompletedCapitals] = useState<CompletedCapital[]>(() => {
+    const saved = localStorage.getItem('mapitals-completed-capitals')
+    return saved ? JSON.parse(saved) : []
+  })
 
   const handleOpenChange = (open: boolean) => {
     setIsRegionMenuOpen(open)
@@ -97,6 +103,11 @@ function App() {
   useEffect(() => {
     localStorage.setItem('mapitals-best-streak', bestStreak.toString())
   }, [bestStreak])
+
+  // Save completed capitals to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('mapitals-completed-capitals', JSON.stringify(completedCapitals))
+  }, [completedCapitals])
 
   // Shuffle capitals when region changes (for non-US States modes)
   useEffect(() => {
@@ -246,7 +257,7 @@ function App() {
     } else {
       const tempGuessed = new Set(newGuessedLetters)
       if (isWordCompleteWithSet(city, tempGuessed) &&
-          isWordCompleteWithSet(regionName, tempGuessed)) {
+            isWordCompleteWithSet(regionName, tempGuessed)) {
         setGameOver(true)
         setWon(true)
         setScore(prev => prev + (MAX_WRONG_GUESSES - wrongGuesses))
@@ -257,6 +268,17 @@ function App() {
           setBestStreak(best => Math.max(best, newStreak))
           return newStreak
         })
+        // Add completed capital with star marker
+        const lat = isUSStatesMode ? currentStateCapital?.lat : currentCapital?.lat
+        const lng = isUSStatesMode ? currentStateCapital?.lng : currentCapital?.lng
+        if (lat !== undefined && lng !== undefined) {
+          setCompletedCapitals(prev => [...prev, {
+            lat,
+            lng,
+            city,
+            wrongGuesses
+          }])
+        }
       }
     }
   }, [gameOver, guessedLetters, currentCapital, currentStateCapital, wrongGuesses, isUSStatesMode])
@@ -388,6 +410,7 @@ function App() {
                 targetName={isUSStatesMode ? currentStateCapital?.state ?? null : currentCapital?.country ?? null}
                 setShowOutline={setShowOutline}
               />
+              <StarMarkers completedCapitals={completedCapitals} />
             </MapContainer>
           </div>
 

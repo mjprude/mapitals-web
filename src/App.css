@@ -41,3 +41,8 @@
 .read-the-docs {
   color: #888;
 }
+
+.star-marker {
+  background: transparent;
+  border: none;
+}
