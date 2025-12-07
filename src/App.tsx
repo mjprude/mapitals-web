@@ -42,6 +42,10 @@ function App() {
     const saved = localStorage.getItem('mapitals-completed-capitals')
     return saved ? JSON.parse(saved) : []
   })
+  const [showStars, setShowStars] = useState(() => {
+    const saved = localStorage.getItem('mapitals-show-stars')
+    return saved !== null ? saved === 'true' : true
+  })
 
   const handleOpenChange = (open: boolean) => {
     setIsRegionMenuOpen(open)
@@ -108,6 +112,19 @@ function App() {
   useEffect(() => {
     localStorage.setItem('mapitals-completed-capitals', JSON.stringify(completedCapitals))
   }, [completedCapitals])
+
+  // Save showStars to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('mapitals-show-stars', showStars.toString())
+  }, [showStars])
+
+  const resetHistory = useCallback(() => {
+    setCompletedCapitals([])
+    setScore(0)
+    setGamesPlayed(0)
+    setCurrentStreak(0)
+    setBestStreak(0)
+  }, [])
 
   // Shuffle capitals when region changes (for non-US States modes)
   useEffect(() => {
@@ -366,6 +383,9 @@ function App() {
           bestStreak={bestStreak}
           isMobile={isMobile}
           onShowInfo={() => setShowInfo(true)}
+          showStars={showStars}
+          setShowStars={setShowStars}
+          onResetHistory={resetHistory}
         />
 
         <main className="flex-1 relative">
@@ -410,7 +430,7 @@ function App() {
                 targetName={isUSStatesMode ? currentStateCapital?.state ?? null : currentCapital?.country ?? null}
                 setShowOutline={setShowOutline}
               />
-              <StarMarkers completedCapitals={completedCapitals} />
+              {showStars && <StarMarkers completedCapitals={completedCapitals} />}
             </MapContainer>
           </div>
 
