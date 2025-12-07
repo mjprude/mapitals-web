@@ -92,6 +92,7 @@ export function Header({
                   variant="ghost"
                   size="sm"
                   className="text-slate-300 hover:text-white hover:bg-slate-700 p-2"
+                  aria-label="Settings"
                 >
                   <Settings size={20} />
                 </Button>
@@ -125,6 +126,7 @@ export function Header({
               size="sm"
               onClick={onShowInfo}
               className="text-slate-300 hover:text-white hover:bg-slate-700 p-2"
+              aria-label="How to play"
             >
               <Info size={20} />
             </Button>
@@ -133,7 +135,7 @@ export function Header({
               onValueChange={(value) => setRegion(value as Region)}
               onOpenChange={onOpenChange}
             >
-              <SelectTrigger className="w-32 bg-slate-700 border-slate-600 text-white">
+              <SelectTrigger className="w-32 bg-slate-700 border-slate-600 text-white" aria-label="Select region">
                 <SelectValue placeholder="Region" />
               </SelectTrigger>
               <SelectContent className="bg-slate-800 border-slate-600" style={{ zIndex: 9999 }}>
