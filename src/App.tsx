@@ -20,6 +20,7 @@ interface MapControllerProps {
   center: [number, number]
   isInitial: boolean
   shouldPan: boolean
+  setShouldPan: (value: boolean) => void
   gameOver: boolean
   isUSStatesMode: boolean
   countryGeoJson: GeoJSON.FeatureCollection | null
@@ -27,7 +28,7 @@ interface MapControllerProps {
   targetName: string | null
 }
 
-function MapController({ zoom, center, isInitial, shouldPan, gameOver, isUSStatesMode, countryGeoJson, statesGeoJson, targetName }: MapControllerProps) {
+function MapController({ zoom, center, isInitial, shouldPan, setShouldPan, gameOver, isUSStatesMode, countryGeoJson, statesGeoJson, targetName }: MapControllerProps) {
   const map = useMap()
   const hasInitialized = useRef(false)
 
@@ -40,6 +41,7 @@ function MapController({ zoom, center, isInitial, shouldPan, gameOver, isUSState
     } else if (shouldPan && !gameOver) {
       // On wrong guess: pan to location (keep same zoom)
       map.flyTo(center, zoom, { duration: 2, easeLinearity: 0.2 })
+      setShouldPan(false) // Reset after panning to prevent repeated flyTo calls
     } else if (gameOver && targetName) {
       // On game over: zoom to fit the country/state bounds
       const geoJson = isUSStatesMode ? statesGeoJson : countryGeoJson
@@ -74,7 +76,7 @@ function MapController({ zoom, center, isInitial, shouldPan, gameOver, isUSState
         map.flyTo(center, zoom, { duration: 1, easeLinearity: 0.2 })
       }
     }
-  }, [zoom, center, map, isInitial, shouldPan, gameOver, isUSStatesMode, countryGeoJson, statesGeoJson, targetName])
+  }, [zoom, center, map, isInitial, shouldPan, setShouldPan, gameOver, isUSStatesMode, countryGeoJson, statesGeoJson, targetName])
 
   // Enable/disable map interactivity based on game state
   useEffect(() => {
@@ -373,9 +375,11 @@ function App() {
   const ADJUSTED_ZOOM_LEVELS = [2, 2, 3, 3.5, 4, 5, 6]
   const currentZoom = ADJUSTED_ZOOM_LEVELS[Math.min(wrongGuesses, ADJUSTED_ZOOM_LEVELS.length - 1)]
 
-  const mapCenter: [number, number] = isUSStatesMode
-    ? (currentStateCapital ? [currentStateCapital.lat, currentStateCapital.lng] : [0, 0])
-    : (currentCapital ? [currentCapital.lat, currentCapital.lng] : [0, 0])
+  const mapCenter = useMemo<[number, number]>(() => {
+    return isUSStatesMode
+      ? (currentStateCapital ? [currentStateCapital.lat, currentStateCapital.lng] : [0, 0])
+      : (currentCapital ? [currentCapital.lat, currentCapital.lng] : [0, 0])
+  }, [isUSStatesMode, currentStateCapital, currentCapital])
 
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
@@ -480,6 +484,7 @@ function App() {
                 center={mapCenter} 
                 isInitial={isInitialLoad} 
                 shouldPan={shouldPan} 
+                setShouldPan={setShouldPan}
                 gameOver={gameOver} 
                 isUSStatesMode={isUSStatesMode}
                 countryGeoJson={countryGeoJson}
