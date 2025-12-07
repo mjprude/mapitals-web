@@ -7,6 +7,10 @@ html, body {
   padding: 0;
   overflow: hidden;
 }
+
+.leaflet-container {
+  background-color: #7751f8 !important;
+}
 @layer base {
   :root {
     --radius: 0.5rem
