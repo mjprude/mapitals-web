@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet'
+import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import './App.css'
 import { Button } from '@/components/ui/button'
@@ -14,7 +15,19 @@ const MAX_WRONG_GUESSES = 6
 // US center coordinates (roughly center of continental US)
 const US_CENTER: [number, number] = [39.8, -98.5]
 
-function MapController({ zoom, center, isInitial, shouldPan, gameOver, isUSStatesMode }: { zoom: number; center: [number, number]; isInitial: boolean; shouldPan: boolean; gameOver: boolean; isUSStatesMode: boolean }) {
+interface MapControllerProps {
+  zoom: number
+  center: [number, number]
+  isInitial: boolean
+  shouldPan: boolean
+  gameOver: boolean
+  isUSStatesMode: boolean
+  countryGeoJson: GeoJSON.FeatureCollection | null
+  statesGeoJson: GeoJSON.FeatureCollection | null
+  targetName: string | null
+}
+
+function MapController({ zoom, center, isInitial, shouldPan, gameOver, isUSStatesMode, countryGeoJson, statesGeoJson, targetName }: MapControllerProps) {
   const map = useMap()
   const hasInitialized = useRef(false)
 
@@ -27,11 +40,41 @@ function MapController({ zoom, center, isInitial, shouldPan, gameOver, isUSState
     } else if (shouldPan && !gameOver) {
       // On wrong guess: pan to location (keep same zoom)
       map.flyTo(center, zoom, { duration: 2, easeLinearity: 0.2 })
-    } else if (gameOver) {
-      // On game over: pan to final location
-      map.flyTo(center, zoom, { duration: 1, easeLinearity: 0.2 })
+    } else if (gameOver && targetName) {
+      // On game over: zoom to fit the country/state bounds
+      const geoJson = isUSStatesMode ? statesGeoJson : countryGeoJson
+      if (geoJson) {
+        // Find the matching feature
+        const feature = geoJson.features.find(f => {
+          if (isUSStatesMode) {
+            const stateName = f.properties?.NAME || f.properties?.name
+            return stateName?.toLowerCase() === targetName.toLowerCase()
+          } else {
+            const countryName = f.properties?.ADMIN || f.properties?.name
+            return countryName?.toLowerCase() === targetName.toLowerCase()
+          }
+        })
+        
+        if (feature) {
+          // Create a GeoJSON layer to get bounds
+          const geoJsonLayer = L.geoJSON(feature)
+          const bounds = geoJsonLayer.getBounds()
+          map.flyToBounds(bounds, { 
+            duration: 1.5, 
+            easeLinearity: 0.2,
+            padding: [50, 50],
+            maxZoom: 10
+          })
+        } else {
+          // Fallback: pan to center if feature not found
+          map.flyTo(center, zoom, { duration: 1, easeLinearity: 0.2 })
+        }
+      } else {
+        // Fallback: pan to center if no GeoJSON data
+        map.flyTo(center, zoom, { duration: 1, easeLinearity: 0.2 })
+      }
     }
-  }, [zoom, center, map, isInitial, shouldPan, gameOver, isUSStatesMode])
+  }, [zoom, center, map, isInitial, shouldPan, gameOver, isUSStatesMode, countryGeoJson, statesGeoJson, targetName])
 
   // Enable/disable map interactivity based on game state
   useEffect(() => {
@@ -70,6 +113,7 @@ function App() {
   const [gameOver, setGameOver] = useState(false)
   const [won, setWon] = useState(false)
   const [countryGeoJson, setCountryGeoJson] = useState<GeoJSON.FeatureCollection | null>(null)
+  const [statesGeoJson, setStatesGeoJson] = useState<GeoJSON.FeatureCollection | null>(null)
   const [region, setRegion] = useState<Region>('World')
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [showInfo, setShowInfo] = useState(false)
@@ -224,6 +268,14 @@ function App() {
       .then(res => res.json())
       .then(data => setCountryGeoJson(data))
       .catch(err => console.error('Failed to load country borders:', err))
+  }, [])
+
+  // Load US states GeoJSON
+  useEffect(() => {
+    fetch('https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json')
+      .then(res => res.json())
+      .then(data => setStatesGeoJson(data))
+      .catch(err => console.error('Failed to load US state borders:', err))
   }, [])
 
   const getDisplayText = (text: string) => {
@@ -423,7 +475,17 @@ function App() {
                   }}
                 />
               )}
-              <MapController zoom={currentZoom} center={mapCenter} isInitial={isInitialLoad} shouldPan={shouldPan} gameOver={gameOver} isUSStatesMode={isUSStatesMode} />
+              <MapController 
+                zoom={currentZoom} 
+                center={mapCenter} 
+                isInitial={isInitialLoad} 
+                shouldPan={shouldPan} 
+                gameOver={gameOver} 
+                isUSStatesMode={isUSStatesMode}
+                countryGeoJson={countryGeoJson}
+                statesGeoJson={statesGeoJson}
+                targetName={isUSStatesMode ? currentStateCapital?.state ?? null : currentCapital?.country ?? null}
+              />
             </MapContainer>
           </div>
 
