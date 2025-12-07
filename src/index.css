@@ -7,6 +7,10 @@ html, body {
   padding: 0;
   overflow: hidden;
 }
+
+.leaflet-container {
+  background: linear-gradient(to right, #7751f8, #8b5cf6, #06b6d4) !important;
+}
 @layer base {
   :root {
     --radius: 0.5rem

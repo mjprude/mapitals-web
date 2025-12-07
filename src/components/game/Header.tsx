@@ -89,25 +89,25 @@ export function Header({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <header className="bg-slate-800/90 p-3 shadow-lg z-50">
+      <header className="bg-gradient-to-r from-[#7751f8] via-[#8b5cf6] to-[#06b6d4] p-3 shadow-lg z-50">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold text-emerald-400">Mapitals</h1>
-            <div className="flex bg-slate-700 rounded-lg p-1">
+            <h1 className="text-2xl font-bold text-white">Mapitals</h1>
+            <div className="flex bg-white/20 rounded-lg p-1">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setGameMode('daily')}
                 className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                   gameMode === 'daily'
-                    ? 'bg-emerald-600 text-white hover:bg-emerald-600'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-600'
+                    ? 'bg-emerald-500 text-white hover:bg-emerald-500'
+                    : 'text-white/80 hover:text-white hover:bg-white/20'
                 }`}
               >
                 <Calendar size={16} className="mr-1" />
                 {!isMobile && 'Daily'}
                 {dailyCompleted && gameMode === 'daily' && (
-                  <span className="ml-1 text-xs text-emerald-300">(done)</span>
+                  <span className="ml-1 text-xs text-emerald-200">(done)</span>
                 )}
               </Button>
               <Button
@@ -116,8 +116,8 @@ export function Header({
                 onClick={() => setGameMode('practice')}
                 className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                   gameMode === 'practice'
-                    ? 'bg-amber-600 text-white hover:bg-amber-600'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-600'
+                    ? 'bg-amber-500 text-white hover:bg-amber-500'
+                    : 'text-white/80 hover:text-white hover:bg-white/20'
                 }`}
               >
                 <Dumbbell size={16} className="mr-1" />
@@ -131,7 +131,7 @@ export function Header({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-slate-300 hover:text-white hover:bg-slate-700 p-2"
+                  className="text-white/80 hover:text-white hover:bg-purple-700/50 p-2"
                 >
                   <Settings size={20} />
                 </Button>
@@ -164,7 +164,7 @@ export function Header({
               variant="ghost"
               size="sm"
               onClick={onShowInfo}
-              className="text-slate-300 hover:text-white hover:bg-slate-700 p-2"
+              className="text-white/80 hover:text-white hover:bg-purple-700/50 p-2"
             >
               <Info size={20} />
             </Button>
@@ -173,7 +173,7 @@ export function Header({
               onValueChange={(value) => setRegion(value as Region)}
               onOpenChange={onOpenChange}
             >
-              <SelectTrigger className="w-32 bg-slate-700 border-slate-600 text-white">
+              <SelectTrigger className="w-32 bg-white/20 border-white/30 text-white hover:bg-white/30">
                 <SelectValue placeholder="Region" />
               </SelectTrigger>
               <SelectContent className="bg-slate-800 border-slate-600" style={{ zIndex: 9999 }}>
@@ -186,20 +186,26 @@ export function Header({
                 <SelectItem value="US States" className="text-white hover:bg-slate-700">US States</SelectItem>
               </SelectContent>
             </Select>
-            <div className={isMobile ? "flex flex-col items-center text-xs" : "flex items-baseline gap-1 text-sm"}>
-              <span className="whitespace-nowrap">{isMobile ? "Score" : "Score:"}</span>
-              <span className="text-emerald-400 font-bold">{score}</span>
+            <div className={isMobile ? "flex flex-col items-center text-xs" : "flex items-center gap-2 text-sm"}>
+              <span className="bg-white/20 px-2 py-1 rounded-full">
+                <span className="text-white/90">{isMobile ? "" : "Score: "}</span>
+                <span className="text-amber-300 font-bold">{score}</span>
+              </span>
             </div>
             {!isMobile && (
-              <div className="flex items-baseline gap-1 text-sm">
-                <span className="whitespace-nowrap">Games:</span>
-                <span className="text-emerald-400 font-bold">{gamesPlayed}</span>
+              <div className="flex items-center gap-2 text-sm">
+                <span className="bg-white/20 px-2 py-1 rounded-full">
+                  <span className="text-white/90">Games: </span>
+                  <span className="text-amber-300 font-bold">{gamesPlayed}</span>
+                </span>
               </div>
             )}
-            <div className={isMobile ? "flex flex-col items-center text-xs" : "flex items-baseline gap-1 text-sm"}>
-              <span className="whitespace-nowrap">{isMobile ? "Streak" : "Streak:"}</span>
-              <span className="text-amber-400 font-bold">{currentStreak}</span>
-              {!isMobile && bestStreak > 0 && <span className="text-slate-400 text-xs ml-1">(best: {bestStreak})</span>}
+            <div className={isMobile ? "flex flex-col items-center text-xs" : "flex items-center gap-2 text-sm"}>
+              <span className="bg-white/20 px-2 py-1 rounded-full">
+                <span className="text-white/90">{isMobile ? "" : "Streak: "}</span>
+                <span className="text-pink-300 font-bold">{currentStreak}</span>
+                {!isMobile && bestStreak > 0 && <span className="text-white/60 text-xs ml-1">(best: {bestStreak})</span>}
+              </span>
             </div>
           </div>
         </div>
