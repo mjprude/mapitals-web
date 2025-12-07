@@ -160,15 +160,7 @@ If you'd like to add or correct capital city data:
 
 ## Project Architecture
 
-Understanding the project structure will help you contribute effectively:
-
-- `src/App.tsx` - Main game component and logic
-- `src/capitals.ts` - Capital city data and types
-- `src/components/game/` - Game-specific UI components
-- `src/components/ui/` - Reusable UI components (shadcn/ui)
-- `src/constants/` - Game constants like zoom levels and max guesses
-- `src/hooks/` - Custom React hooks
-- `src/utils/` - Utility functions
+The source code lives in the `src/` directory. The main game logic is in `App.tsx`, with capital city data and types defined in `capitals.ts`. UI components are organized under `src/components/`, with game-specific components separate from the reusable shadcn/ui component library.
 
 ## Questions?
 

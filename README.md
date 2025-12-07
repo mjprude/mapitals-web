@@ -90,24 +90,7 @@ npm run preview
 
 ## Project Structure
 
-```
-mapitals-v2/
-├── public/                 # Static assets
-├── src/
-│   ├── components/
-│   │   ├── game/          # Game-specific components
-│   │   └── ui/            # shadcn/ui component library
-│   ├── constants/         # Game constants
-│   ├── hooks/             # Custom React hooks
-│   ├── lib/               # Utility functions
-│   ├── test/              # Test setup
-│   ├── utils/             # Helper utilities
-│   ├── App.tsx            # Main game component
-│   ├── capitals.ts        # Capital city data
-│   └── capitals.test.ts   # Tests for capital data
-├── .github/workflows/     # CI configuration
-└── package.json
-```
+The source code lives in the `src/` directory. The main game logic is in `App.tsx`, with capital city data in `capitals.ts`. UI components are organized under `src/components/`, with game-specific components separate from the reusable shadcn/ui component library.
 
 ## Contributing
 
