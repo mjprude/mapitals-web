@@ -1,117 +1,22 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
-import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet'
-import L from 'leaflet'
+import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import './App.css'
 import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Info, X, Flag } from 'lucide-react'
+import { Flag } from 'lucide-react'
 
 import { Region, Capital, StateCapital, CAPITALS, US_STATE_CAPITALS } from './capitals'
 import { useIsMobile } from './hooks/use-mobile'
-
-const MAX_WRONG_GUESSES = 6
-
-// US center coordinates (roughly center of continental US)
-const US_CENTER: [number, number] = [39.8, -98.5]
-
-interface MapControllerProps {
-  zoom: number
-  center: [number, number]
-  isInitial: boolean
-  shouldPan: boolean
-  setShouldPan: (value: boolean) => void
-  gameOver: boolean
-  isUSStatesMode: boolean
-  countryGeoJson: GeoJSON.FeatureCollection | null
-  statesGeoJson: GeoJSON.FeatureCollection | null
-  targetName: string | null
-  setShowOutline: (value: boolean) => void
-}
-
-function MapController({ zoom, center, isInitial, shouldPan, setShouldPan, gameOver, isUSStatesMode, countryGeoJson, statesGeoJson, targetName, setShowOutline }: MapControllerProps) {
-  const map = useMap()
-  const hasInitialized = useRef(false)
-
-  useEffect(() => {
-    if (!hasInitialized.current || isInitial) {
-      // Initial load: center on 0,0 for world, or US center for US States mode (same zoom level)
-      const initialCenter = isUSStatesMode ? US_CENTER : [0, 0] as [number, number]
-      map.setView(initialCenter, zoom, { animate: false })
-      hasInitialized.current = true
-    } else if (shouldPan && !gameOver) {
-      // On wrong guess: pan to location (keep same zoom)
-      map.flyTo(center, zoom, { duration: 2, easeLinearity: 0.2 })
-      setShouldPan(false) // Reset after panning to prevent repeated flyTo calls
-    } else if (gameOver && targetName) {
-      // On game over: zoom to fit the country/state bounds
-      // Hide outline during zoom animation
-      setShowOutline(false)
-      const geoJson = isUSStatesMode ? statesGeoJson : countryGeoJson
-      if (geoJson) {
-        // Find the matching feature
-        const feature = geoJson.features.find(f => {
-          if (isUSStatesMode) {
-            const stateName = f.properties?.NAME || f.properties?.name
-            return stateName?.toLowerCase() === targetName.toLowerCase()
-          } else {
-            const countryName = f.properties?.ADMIN || f.properties?.name
-            return countryName?.toLowerCase() === targetName.toLowerCase()
-          }
-        })
-        
-        if (feature) {
-          // Create a GeoJSON layer to get bounds
-          const geoJsonLayer = L.geoJSON(feature)
-          const bounds = geoJsonLayer.getBounds()
-          // Show outline after zoom animation completes
-          map.once('moveend', () => setShowOutline(true))
-          map.flyToBounds(bounds, { 
-            duration: 1.5, 
-            easeLinearity: 0.2,
-            padding: [50, 50],
-            maxZoom: 10
-          })
-        } else {
-          // Fallback: pan to center if feature not found
-          map.once('moveend', () => setShowOutline(true))
-          map.flyTo(center, zoom, { duration: 1, easeLinearity: 0.2 })
-        }
-      } else {
-        // Fallback: pan to center if no GeoJSON data
-        map.once('moveend', () => setShowOutline(true))
-        map.flyTo(center, zoom, { duration: 1, easeLinearity: 0.2 })
-      }
-    }
-  }, [zoom, center, map, isInitial, shouldPan, setShouldPan, gameOver, isUSStatesMode, countryGeoJson, statesGeoJson, targetName, setShowOutline])
-
-  // Enable/disable map interactivity based on game state
-  useEffect(() => {
-    if (gameOver) {
-      map.dragging.enable()
-      map.scrollWheelZoom.enable()
-      map.doubleClickZoom.enable()
-      map.touchZoom.enable()
-    } else {
-      map.dragging.disable()
-      map.scrollWheelZoom.disable()
-      map.doubleClickZoom.disable()
-      map.touchZoom.disable()
-    }
-  }, [gameOver, map])
-
-  return null
-}
-
-// Fisher-Yates shuffle function
-function shuffleArray<T>(array: T[]): T[] {
-  const shuffled = [...array]
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-  }
-  return shuffled
-}
+import { MAX_WRONG_GUESSES, ADJUSTED_ZOOM_LEVELS } from './constants/game'
+import { shuffleArray } from './utils/shuffle'
+import { 
+  MapController, 
+  Header, 
+  GameOverModal, 
+  InfoModal, 
+  Keyboard, 
+  GameDisplay 
+} from './components/game'
 
 function App() {
   const isMobile = useIsMobile()
@@ -391,8 +296,6 @@ function App() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [gameOver, handleGuess, isRegionMenuOpen])
 
-  // Keep zoom constant - first two levels are the same so first wrong guess only pans
-  const ADJUSTED_ZOOM_LEVELS = [2, 2, 3, 3.5, 4, 5, 6]
   const currentZoom = ADJUSTED_ZOOM_LEVELS[Math.min(wrongGuesses, ADJUSTED_ZOOM_LEVELS.length - 1)]
 
   const mapCenter = useMemo<[number, number]>(() => {
@@ -400,8 +303,6 @@ function App() {
       ? (currentStateCapital ? [currentStateCapital.lat, currentStateCapital.lng] : [0, 0])
       : (currentCapital ? [currentCapital.lat, currentCapital.lng] : [0, 0])
   }, [isUSStatesMode, currentStateCapital, currentCapital])
-
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
   const tileUrl = gameOver
     ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -415,60 +316,35 @@ function App() {
     fillOpacity: 0.2
   })
 
+  const city = isUSStatesMode ? currentStateCapital?.city : currentCapital?.city
+  const regionName = isUSStatesMode ? currentStateCapital?.state : currentCapital?.country
+
+  const fullText = isUSStatesMode
+    ? (currentStateCapital ? `${currentStateCapital.city}${currentStateCapital.state}`.toLowerCase() : '')
+    : (currentCapital ? `${currentCapital.city}${currentCapital.country}`.toLowerCase() : '')
+
+  const displayCity = isUSStatesMode
+    ? (currentStateCapital ? (gameOver ? currentStateCapital.city : getDisplayText(currentStateCapital.city)) : '')
+    : (currentCapital ? (gameOver ? currentCapital.city : getDisplayText(currentCapital.city)) : '')
+
+  const displayRegion = isUSStatesMode
+    ? (currentStateCapital ? (gameOver ? currentStateCapital.state : getDisplayText(currentStateCapital.state)) : '')
+    : (currentCapital ? (gameOver ? currentCapital.country : getDisplayText(currentCapital.country)) : '')
+
   return (
     <div className="min-h-screen bg-slate-900 text-white">
       <div className="flex flex-col h-screen">
-        <header className="bg-slate-800/90 p-3 shadow-lg z-50">
-          <div className="container mx-auto flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-emerald-400">Mapitals</h1>
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowInfo(true)}
-                className="text-slate-300 hover:text-white hover:bg-slate-700 p-2"
-              >
-                <Info size={20} />
-              </Button>
-              <Select
-                value={region}
-                onValueChange={(value) => setRegion(value as Region)}
-                onOpenChange={handleOpenChange}
-              >
-                <SelectTrigger className="w-32 bg-slate-700 border-slate-600 text-white">
-                  <SelectValue placeholder="Region" />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-600" style={{ zIndex: 9999 }}>
-                  <SelectItem value="World" className="text-white hover:bg-slate-700">World</SelectItem>
-                  <SelectItem value="Americas" className="text-white hover:bg-slate-700">Americas</SelectItem>
-                  <SelectItem value="Europe" className="text-white hover:bg-slate-700">Europe</SelectItem>
-                  <SelectItem value="Asia" className="text-white hover:bg-slate-700">Asia</SelectItem>
-                  <SelectItem value="Africa" className="text-white hover:bg-slate-700">Africa</SelectItem>
-                  <SelectItem value="Oceania" className="text-white hover:bg-slate-700">Oceania</SelectItem>
-                  <SelectItem value="US States" className="text-white hover:bg-slate-700">US States</SelectItem>
-                </SelectContent>
-              </Select>
-              {/* Score */}
-              <div className={isMobile ? "flex flex-col items-center text-xs" : "flex items-baseline gap-1 text-sm"}>
-                <span className="whitespace-nowrap">{isMobile ? "Score" : "Score:"}</span>
-                <span className="text-emerald-400 font-bold">{score}</span>
-              </div>
-              {/* Games - desktop only */}
-              {!isMobile && (
-                <div className="flex items-baseline gap-1 text-sm">
-                  <span className="whitespace-nowrap">Games:</span>
-                  <span className="text-emerald-400 font-bold">{gamesPlayed}</span>
-                </div>
-              )}
-              {/* Streak */}
-              <div className={isMobile ? "flex flex-col items-center text-xs" : "flex items-baseline gap-1 text-sm"}>
-                <span className="whitespace-nowrap">{isMobile ? "Streak" : "Streak:"}</span>
-                <span className="text-amber-400 font-bold">{currentStreak}</span>
-                {!isMobile && bestStreak > 0 && <span className="text-slate-400 text-xs ml-1">(best: {bestStreak})</span>}
-              </div>
-            </div>
-          </div>
-        </header>
+        <Header
+          region={region}
+          setRegion={setRegion}
+          onOpenChange={handleOpenChange}
+          score={score}
+          gamesPlayed={gamesPlayed}
+          currentStreak={currentStreak}
+          bestStreak={bestStreak}
+          isMobile={isMobile}
+          onShowInfo={() => setShowInfo(true)}
+        />
 
         <main className="flex-1 relative">
           <div className="absolute inset-0">
@@ -532,109 +408,36 @@ function App() {
             )}
           </div>
 
-          {gameOver && (
-            <div className="absolute inset-x-0 top-16 flex justify-center" style={{ zIndex: 1001 }}>
-              <div className="bg-slate-800/95 border border-slate-600 text-white max-w-md rounded-xl p-6 backdrop-blur-sm mx-4">
-                <h2 className={`text-2xl font-bold mb-4 ${won ? "text-emerald-400" : "text-red-400"}`}>
-                  {won ? "Congratulations!" : "Game Over!"}
-                </h2>
-                <p className="text-xl mb-2">
-                  The answer was: <span className="font-bold text-emerald-400">{isUSStatesMode ? currentStateCapital?.city : currentCapital?.city}</span>, <span className="font-bold text-amber-400">{isUSStatesMode ? currentStateCapital?.state : currentCapital?.country}</span>
-                </p>
-                {won && (
-                  <p className="text-lg mb-4">
-                    Points earned: <span className="text-emerald-400 font-bold">+{MAX_WRONG_GUESSES - wrongGuesses}</span>
-                  </p>
-                )}
-                <Button
-                  onClick={startNewGame}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white mt-4"
-                >
-                  Play Again
-                </Button>
-              </div>
-            </div>
+          {gameOver && city && regionName && (
+            <GameOverModal
+              won={won}
+              city={city}
+              regionName={regionName}
+              wrongGuesses={wrongGuesses}
+              onPlayAgain={startNewGame}
+            />
           )}
 
           {showInfo && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center" style={{ zIndex: 1002 }}>
-              <div className="bg-slate-800/95 border border-slate-600 text-white max-w-lg rounded-xl p-6 backdrop-blur-sm mx-4 relative">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowInfo(false)}
-                  className="absolute top-2 right-2 text-slate-400 hover:text-white hover:bg-slate-700 p-1"
-                >
-                  <X size={20} />
-                </Button>
-                <h2 className="text-2xl font-bold mb-4 text-emerald-400">How to Play</h2>
-                <div className="space-y-3 text-slate-300">
-                  <p>Guess the capital city and country by selecting letters. The map starts zoomed out showing the whole world.</p>
-                  <p>Each wrong guess zooms the map closer to the location. After 6 wrong guesses, the game ends and the answer is revealed.</p>
-                  <p>You can type letters on your keyboard or click the letter buttons. Use the region dropdown to filter capitals by continent.</p>
-                  <p>Score points by guessing correctly with fewer wrong attempts!</p>
-                </div>
-                <div className="mt-6 pt-4 border-t border-slate-600 text-xs text-slate-500">
-                  <p>Map data: OpenStreetMap contributors, Esri/ArcGIS</p>
-                  <p>Country borders: Natural Earth via GitHub datasets</p>
-                  <p className="mt-2">Mapitals - A geography guessing game</p>
-                </div>
-              </div>
-            </div>
+            <InfoModal onClose={() => setShowInfo(false)} />
           )}
 
           <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center pb-4" style={{ zIndex: 1000 }}>
             <div className="pointer-events-auto w-full max-w-4xl px-4 flex flex-col gap-3">
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <div className="bg-slate-900/80 backdrop-blur-sm rounded-lg px-4 py-3 flex-1">
-                  <p className="text-emerald-400 text-sm font-semibold mb-1">{isUSStatesMode ? 'State Capital' : 'Capital City'}</p>
-                  <p className="text-xl sm:text-2xl font-mono tracking-widest text-white">
-                    {isUSStatesMode
-                      ? (currentStateCapital ? (gameOver ? currentStateCapital.city : getDisplayText(currentStateCapital.city)) : '')
-                      : (currentCapital ? (gameOver ? currentCapital.city : getDisplayText(currentCapital.city)) : '')}
-                  </p>
-                </div>
-                <div className="bg-slate-900/80 backdrop-blur-sm rounded-lg px-4 py-3 flex-1">
-                  <p className="text-amber-400 text-sm font-semibold mb-1">{isUSStatesMode ? 'State' : 'Country'}</p>
-                  <p className="text-xl sm:text-2xl font-mono tracking-widest text-white">
-                    {isUSStatesMode
-                      ? (currentStateCapital ? (gameOver ? currentStateCapital.state : getDisplayText(currentStateCapital.state)) : '')
-                      : (currentCapital ? (gameOver ? currentCapital.country : getDisplayText(currentCapital.country)) : '')}
-                  </p>
-                </div>
-              </div>
+              <GameDisplay
+                isUSStatesMode={isUSStatesMode}
+                displayCity={displayCity}
+                displayRegion={displayRegion}
+              />
 
-              <div ref={keyboardRef} tabIndex={-1} className="bg-slate-900/80 backdrop-blur-sm rounded-lg px-2 py-2 outline-none" aria-label="Guess a letter">
-                <div className="flex flex-wrap justify-center gap-1">
-                  {alphabet.map(letter => {
-                    const isGuessed = guessedLetters.has(letter.toLowerCase())
-                    const fullText = isUSStatesMode
-                      ? (currentStateCapital ? `${currentStateCapital.city}${currentStateCapital.state}`.toLowerCase() : '')
-                      : (currentCapital ? `${currentCapital.city}${currentCapital.country}`.toLowerCase() : '')
-                    const isCorrect = fullText.includes(letter.toLowerCase())
-
-                    return (
-                      <Button
-                        key={letter}
-                        onClick={() => handleGuess(letter)}
-                        disabled={isGuessed || gameOver}
-                        variant="outline"
-                        className={`
-                          ${isMobile ? 'h-9 w-9 text-sm' : 'h-7 w-7 sm:h-8 sm:w-8 text-xs sm:text-sm'} p-0 font-bold
-                          ${isGuessed
-                        ? isCorrect
-                          ? 'bg-emerald-600 border-emerald-600 text-white'
-                          : 'bg-red-600 border-red-600 text-white'
-                        : 'bg-slate-700/80 border-slate-600 text-white hover:bg-slate-600'
-                      }
-                        `}
-                      >
-                        {letter}
-                      </Button>
-                    )
-                  })}
-                </div>
-              </div>
+              <Keyboard
+                ref={keyboardRef}
+                guessedLetters={guessedLetters}
+                gameOver={gameOver}
+                fullText={fullText}
+                isMobile={isMobile}
+                onGuess={handleGuess}
+              />
             </div>
           </div>
         </main>
