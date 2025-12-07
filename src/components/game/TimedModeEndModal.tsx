@@ -1,12 +1,20 @@
 import { Button } from '@/components/ui/button'
 import { GripHorizontal, Trophy, Target, Clock } from 'lucide-react'
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { TimedModeDuration } from '@/constants/game'
+
+const DURATION_LABELS: Record<TimedModeDuration, string> = {
+  '1min': '1 Minute',
+  '2min': '2 Minutes',
+  '5min': '5 Minutes',
+}
 
 interface TimedModeEndModalProps {
   capitalsGuessed: number
   sessionScore: number
   bestCapitals: number
   bestScore: number
+  duration: TimedModeDuration
   onPlayAgain: () => void
   onExitTimedMode: () => void
 }
@@ -16,6 +24,7 @@ export function TimedModeEndModal({
   sessionScore,
   bestCapitals,
   bestScore,
+  duration,
   onPlayAgain,
   onExitTimedMode,
 }: TimedModeEndModalProps) {
@@ -101,9 +110,12 @@ export function TimedModeEndModal({
           <GripHorizontal size={20} />
         </div>
         
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <Clock className="text-amber-400" size={28} />
-          <h2 className="text-2xl font-bold text-amber-400">Time's Up!</h2>
+        <div className="flex flex-col items-center justify-center gap-1 mb-4">
+          <div className="flex items-center gap-2">
+            <Clock className="text-amber-400" size={28} />
+            <h2 className="text-2xl font-bold text-amber-400">Time's Up!</h2>
+          </div>
+          <span className="text-sm text-slate-400">{DURATION_LABELS[duration]} Mode</span>
         </div>
 
         <div className="space-y-4">

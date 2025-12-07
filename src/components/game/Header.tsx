@@ -20,8 +20,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Switch } from '@/components/ui/switch'
-import { Info, Settings, Clock } from 'lucide-react'
+import { Info, Settings, Clock, Play } from 'lucide-react'
 import { Region } from '@/capitals'
+import { TimedModeDuration, TIMED_MODE_DURATIONS } from '@/constants/game'
 
 interface HeaderProps {
   region: Region
@@ -36,10 +37,14 @@ interface HeaderProps {
   showStars: boolean
   setShowStars: (show: boolean) => void
   onResetHistory: () => void
-  timedMode: boolean
-  setTimedMode: (enabled: boolean) => void
   timedSessionActive: boolean
-  onStartTimedSession: () => void
+  onStartTimedSession: (duration: TimedModeDuration) => void
+}
+
+const DURATION_LABELS: Record<TimedModeDuration, string> = {
+  '1min': '1 Minute',
+  '2min': '2 Minutes',
+  '5min': '5 Minutes',
 }
 
 export function Header({
@@ -55,8 +60,6 @@ export function Header({
   showStars,
   setShowStars,
   onResetHistory,
-  timedMode,
-  setTimedMode,
   timedSessionActive,
   onStartTimedSession,
 }: HeaderProps) {
@@ -119,30 +122,6 @@ export function Header({
                     />
                   </div>
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="hover:bg-slate-700 focus:bg-slate-700 cursor-pointer"
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  <div className="flex items-center justify-between w-full gap-4">
-                    <div className="flex items-center gap-2">
-                      <Clock size={16} className="text-amber-400" />
-                      <span>Timed Mode</span>
-                    </div>
-                    <Switch
-                      checked={timedMode}
-                      onCheckedChange={setTimedMode}
-                    />
-                  </div>
-                </DropdownMenuItem>
-                {timedMode && !timedSessionActive && (
-                  <DropdownMenuItem
-                    className="text-emerald-400 hover:bg-slate-700 focus:bg-slate-700 focus:text-emerald-400 cursor-pointer"
-                    onSelect={onStartTimedSession}
-                  >
-                    <Clock size={16} className="mr-2" />
-                    Start Timed Session
-                  </DropdownMenuItem>
-                )}
                 <DropdownMenuSeparator className="bg-slate-600" />
                 <DropdownMenuItem
                   className="text-red-400 hover:bg-slate-700 focus:bg-slate-700 focus:text-red-400 cursor-pointer"
@@ -152,6 +131,37 @@ export function Header({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            {!timedSessionActive && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-amber-400 hover:text-amber-300 hover:bg-slate-700 p-2 flex items-center gap-1"
+                  >
+                    <Clock size={20} />
+                    <span className="text-sm hidden sm:inline">Timed</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-slate-800 border-slate-600 text-white" style={{ zIndex: 9999 }}>
+                  <DropdownMenuLabel className="text-slate-300 flex items-center gap-2">
+                    <Clock size={16} className="text-amber-400" />
+                    Timed Mode
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-slate-600" />
+                  {(Object.keys(TIMED_MODE_DURATIONS) as TimedModeDuration[]).map((duration) => (
+                    <DropdownMenuItem
+                      key={duration}
+                      className="text-emerald-400 hover:bg-slate-700 focus:bg-slate-700 focus:text-emerald-400 cursor-pointer"
+                      onSelect={() => onStartTimedSession(duration)}
+                    >
+                      <Play size={16} className="mr-2" />
+                      {DURATION_LABELS[duration]}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             <Button
               variant="ghost"
               size="sm"

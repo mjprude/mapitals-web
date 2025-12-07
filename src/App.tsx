@@ -7,7 +7,7 @@ import { Flag, Clock } from 'lucide-react'
 
 import { Region, Capital, StateCapital, CAPITALS, US_STATE_CAPITALS } from './capitals'
 import { useIsMobile } from './hooks/use-mobile'
-import { MAX_WRONG_GUESSES, ADJUSTED_ZOOM_LEVELS, TIMED_MODE_DURATION } from './constants/game'
+import { MAX_WRONG_GUESSES, ADJUSTED_ZOOM_LEVELS, TIMED_MODE_DURATIONS, TimedModeDuration } from './constants/game'
 import { shuffleArray } from './utils/shuffle'
 import { 
   MapController, 
@@ -85,7 +85,8 @@ function App() {
 
   // Timed mode state
   const [timedMode, setTimedMode] = useState(false)
-  const [timeRemaining, setTimeRemaining] = useState(TIMED_MODE_DURATION)
+  const [selectedDuration, setSelectedDuration] = useState<TimedModeDuration>('1min')
+  const [timeRemaining, setTimeRemaining] = useState(TIMED_MODE_DURATIONS['1min'])
   const [timerPaused, setTimerPaused] = useState(true)
   const [timedSessionActive, setTimedSessionActive] = useState(false)
   const [timedCapitalsGuessed, setTimedCapitalsGuessed] = useState(0)
@@ -93,14 +94,17 @@ function App() {
   const [showTimedEndModal, setShowTimedEndModal] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  // Timed mode best stats from localStorage
-  const [timedBestScore, setTimedBestScore] = useState(() => {
-    const saved = localStorage.getItem('mapitals-timed-best-score')
-    return saved ? parseInt(saved, 10) : 0
-  })
-  const [timedBestCapitals, setTimedBestCapitals] = useState(() => {
-    const saved = localStorage.getItem('mapitals-timed-best-capitals')
-    return saved ? parseInt(saved, 10) : 0
+  // Timed mode best stats from localStorage - separate for each duration
+  const [timedBestStats, setTimedBestStats] = useState<Record<TimedModeDuration, { score: number; capitals: number }>>(() => {
+    const saved = localStorage.getItem('mapitals-timed-best-stats')
+    if (saved) {
+      return JSON.parse(saved)
+    }
+    return {
+      '1min': { score: 0, capitals: 0 },
+      '2min': { score: 0, capitals: 0 },
+      '5min': { score: 0, capitals: 0 },
+    }
   })
 
   const isUSStatesMode = region === 'US States'
@@ -141,12 +145,8 @@ function App() {
 
   // Save timed mode best stats to localStorage
   useEffect(() => {
-    localStorage.setItem('mapitals-timed-best-score', timedBestScore.toString())
-  }, [timedBestScore])
-
-  useEffect(() => {
-    localStorage.setItem('mapitals-timed-best-capitals', timedBestCapitals.toString())
-  }, [timedBestCapitals])
+    localStorage.setItem('mapitals-timed-best-stats', JSON.stringify(timedBestStats))
+  }, [timedBestStats])
 
   // Timer logic
   useEffect(() => {
@@ -176,22 +176,26 @@ function App() {
   // Update best stats when timed session ends
   useEffect(() => {
     if (showTimedEndModal) {
-      if (timedSessionScore > timedBestScore) {
-        setTimedBestScore(timedSessionScore)
-      }
-      if (timedCapitalsGuessed > timedBestCapitals) {
-        setTimedBestCapitals(timedCapitalsGuessed)
+      const currentBest = timedBestStats[selectedDuration]
+      if (timedSessionScore > currentBest.score || timedCapitalsGuessed > currentBest.capitals) {
+        setTimedBestStats(prev => ({
+          ...prev,
+          [selectedDuration]: {
+            score: Math.max(timedSessionScore, currentBest.score),
+            capitals: Math.max(timedCapitalsGuessed, currentBest.capitals),
+          }
+        }))
       }
     }
-  }, [showTimedEndModal, timedSessionScore, timedCapitalsGuessed, timedBestScore, timedBestCapitals])
+  }, [showTimedEndModal, timedSessionScore, timedCapitalsGuessed, selectedDuration, timedBestStats])
 
   const exitTimedMode = useCallback(() => {
     setTimedMode(false)
     setTimedSessionActive(false)
     setTimerPaused(true)
     setShowTimedEndModal(false)
-    setTimeRemaining(TIMED_MODE_DURATION)
-  }, [])
+    setTimeRemaining(TIMED_MODE_DURATIONS[selectedDuration])
+  }, [selectedDuration])
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
@@ -268,10 +272,12 @@ function App() {
     setTimeout(() => setIsInitialLoad(false), 100)
   }, [getNextCapital, getNextStateCapital, isUSStatesMode])
 
-  const startTimedSession = useCallback(() => {
-    setTimeRemaining(TIMED_MODE_DURATION)
+  const startTimedSession = useCallback((duration: TimedModeDuration) => {
+    setSelectedDuration(duration)
+    setTimeRemaining(TIMED_MODE_DURATIONS[duration])
     setTimedCapitalsGuessed(0)
     setTimedSessionScore(0)
+    setTimedMode(true)
     setTimedSessionActive(true)
     setTimerPaused(false)
     setShowTimedEndModal(false)
@@ -504,8 +510,6 @@ function App() {
           showStars={showStars}
           setShowStars={setShowStars}
           onResetHistory={resetHistory}
-          timedMode={timedMode}
-          setTimedMode={setTimedMode}
           timedSessionActive={timedSessionActive}
           onStartTimedSession={startTimedSession}
         />
@@ -600,9 +604,10 @@ function App() {
             <TimedModeEndModal
               capitalsGuessed={timedCapitalsGuessed}
               sessionScore={timedSessionScore}
-              bestCapitals={timedBestCapitals}
-              bestScore={timedBestScore}
-              onPlayAgain={startTimedSession}
+              bestCapitals={timedBestStats[selectedDuration].capitals}
+              bestScore={timedBestStats[selectedDuration].score}
+              duration={selectedDuration}
+              onPlayAgain={() => startTimedSession(selectedDuration)}
               onExitTimedMode={exitTimedMode}
             />
           )}
