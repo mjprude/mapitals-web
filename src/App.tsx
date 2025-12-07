@@ -38,7 +38,10 @@ function App() {
   const [showOutline, setShowOutline] = useState(false)
   const keyboardRef = useRef<HTMLDivElement | null>(null)
   const hasGameInitializedRef = useRef(false)
-  const [completedCapitals, setCompletedCapitals] = useState<CompletedCapital[]>([])
+  const [completedCapitals, setCompletedCapitals] = useState<CompletedCapital[]>(() => {
+    const saved = localStorage.getItem('mapitals-completed-capitals')
+    return saved ? JSON.parse(saved) : []
+  })
 
   const handleOpenChange = (open: boolean) => {
     setIsRegionMenuOpen(open)
@@ -100,6 +103,11 @@ function App() {
   useEffect(() => {
     localStorage.setItem('mapitals-best-streak', bestStreak.toString())
   }, [bestStreak])
+
+  // Save completed capitals to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('mapitals-completed-capitals', JSON.stringify(completedCapitals))
+  }, [completedCapitals])
 
   // Shuffle capitals when region changes (for non-US States modes)
   useEffect(() => {
