@@ -14,7 +14,7 @@ const MAX_WRONG_GUESSES = 6
 // US center coordinates (roughly center of continental US)
 const US_CENTER: [number, number] = [39.8, -98.5]
 
-function MapController({ zoom, center, isInitial, shouldPan, gameOver, isUSStatesMode }: { zoom: number; center: [number, number]; isInitial: boolean; shouldPan: boolean; gameOver: boolean; isUSStatesMode: boolean }) {
+function MapController({ zoom, center, isInitial, shouldPan, setShouldPan, gameOver, isUSStatesMode }: { zoom: number; center: [number, number]; isInitial: boolean; shouldPan: boolean; setShouldPan: (value: boolean) => void; gameOver: boolean; isUSStatesMode: boolean }) {
   const map = useMap()
   const hasInitialized = useRef(false)
 
@@ -27,11 +27,12 @@ function MapController({ zoom, center, isInitial, shouldPan, gameOver, isUSState
     } else if (shouldPan && !gameOver) {
       // On wrong guess: pan to location (keep same zoom)
       map.flyTo(center, zoom, { duration: 2, easeLinearity: 0.2 })
+      setShouldPan(false) // Reset after panning to prevent repeated flyTo calls
     } else if (gameOver) {
       // On game over: pan to final location
       map.flyTo(center, zoom, { duration: 1, easeLinearity: 0.2 })
     }
-  }, [zoom, center, map, isInitial, shouldPan, gameOver, isUSStatesMode])
+  }, [zoom, center, map, isInitial, shouldPan, setShouldPan, gameOver, isUSStatesMode])
 
   // Enable/disable map interactivity based on game state
   useEffect(() => {
@@ -321,9 +322,11 @@ function App() {
   const ADJUSTED_ZOOM_LEVELS = [2, 2, 3, 3.5, 4, 5, 6]
   const currentZoom = ADJUSTED_ZOOM_LEVELS[Math.min(wrongGuesses, ADJUSTED_ZOOM_LEVELS.length - 1)]
 
-  const mapCenter: [number, number] = isUSStatesMode
-    ? (currentStateCapital ? [currentStateCapital.lat, currentStateCapital.lng] : [0, 0])
-    : (currentCapital ? [currentCapital.lat, currentCapital.lng] : [0, 0])
+  const mapCenter = useMemo<[number, number]>(() => {
+    return isUSStatesMode
+      ? (currentStateCapital ? [currentStateCapital.lat, currentStateCapital.lng] : [0, 0])
+      : (currentCapital ? [currentCapital.lat, currentCapital.lng] : [0, 0])
+  }, [isUSStatesMode, currentStateCapital, currentCapital])
 
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
@@ -423,7 +426,7 @@ function App() {
                   }}
                 />
               )}
-              <MapController zoom={currentZoom} center={mapCenter} isInitial={isInitialLoad} shouldPan={shouldPan} gameOver={gameOver} isUSStatesMode={isUSStatesMode} />
+              <MapController zoom={currentZoom} center={mapCenter} isInitial={isInitialLoad} shouldPan={shouldPan} setShouldPan={setShouldPan} gameOver={gameOver} isUSStatesMode={isUSStatesMode} />
             </MapContainer>
           </div>
 
