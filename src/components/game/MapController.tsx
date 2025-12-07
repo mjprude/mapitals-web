@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet'
-import L from 'leaflet'
 import { US_CENTER } from '@/constants/game'
 
 export interface MapControllerProps {
@@ -43,36 +42,8 @@ export function MapController({
       setShouldPan(false)
     } else if (gameOver && targetName) {
       setShowOutline(false)
-      const geoJson = isUSStatesMode ? statesGeoJson : countryGeoJson
-      if (geoJson) {
-        const feature = geoJson.features.find(f => {
-          if (isUSStatesMode) {
-            const stateName = f.properties?.NAME || f.properties?.name
-            return stateName?.toLowerCase() === targetName.toLowerCase()
-          } else {
-            const countryName = f.properties?.ADMIN || f.properties?.name
-            return countryName?.toLowerCase() === targetName.toLowerCase()
-          }
-        })
-        
-        if (feature) {
-          const geoJsonLayer = L.geoJSON(feature)
-          const bounds = geoJsonLayer.getBounds()
-          map.once('moveend', () => setShowOutline(true))
-          map.flyToBounds(bounds, { 
-            duration: 1.5, 
-            easeLinearity: 0.2,
-            padding: [50, 50],
-            maxZoom: 10
-          })
-        } else {
-          map.once('moveend', () => setShowOutline(true))
-          map.flyTo(center, zoom, { duration: 1, easeLinearity: 0.2 })
-        }
-      } else {
-        map.once('moveend', () => setShowOutline(true))
-        map.flyTo(center, zoom, { duration: 1, easeLinearity: 0.2 })
-      }
+      map.once('moveend', () => setShowOutline(true))
+      map.flyTo(center, zoom, { duration: 1.5, easeLinearity: 0.2 })
     }
   }, [zoom, center, map, isInitial, shouldPan, setShouldPan, gameOver, isUSStatesMode, countryGeoJson, statesGeoJson, targetName, setShowOutline])
 
