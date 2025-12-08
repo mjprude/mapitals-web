@@ -5,14 +5,27 @@ import './App.css'
 import { Button } from '@/components/ui/button'
 import { Flag } from 'lucide-react'
 
-import { Region, Capital, StateCapital, CAPITALS, US_STATE_CAPITALS } from './capitals'
+import { Region, Capital, StateCapital, CAPITALS, US_STATE_CAPITALS, REGION_ORDER } from './capitals'
 import { useIsMobile } from './hooks/use-mobile'
 import { MAX_WRONG_GUESSES, ADJUSTED_ZOOM_LEVELS } from './constants/game'
 import { shuffleArray } from './utils/shuffle'
 import { 
+  GameMode,
+  getTodayDateString,
+  getDailyCapital,
+  isDailyCompleted,
+  markDailyCompleted,
+  saveDailyResult,
+  getDailyResult,
+  areAllRegionsCompleted,
+  getAllRegionResults,
+  DailyResult
+} from './utils/daily'
+import { 
   MapController, 
   Header, 
   GameOverModal, 
+  AllRegionsCompleteModal,
   InfoModal, 
   Keyboard, 
   GameDisplay,
@@ -38,6 +51,13 @@ function App() {
   const [showOutline, setShowOutline] = useState(false)
   const keyboardRef = useRef<HTMLDivElement | null>(null)
   const hasGameInitializedRef = useRef(false)
+  
+  // Game mode: 'daily' (default) or 'practice'
+  const [gameMode, setGameMode] = useState<GameMode>('daily')
+  const [todayDate] = useState(() => getTodayDateString())
+  const [dailyCompleted, setDailyCompleted] = useState(() => isDailyCompleted(region, getTodayDateString()))
+  const [showAllRegionsComplete, setShowAllRegionsComplete] = useState(false)
+  const [allRegionResults, setAllRegionResults] = useState<Map<Region, DailyResult | null>>(new Map())
   const [completedCapitals, setCompletedCapitals] = useState<CompletedCapital[]>(() => {
     const saved = localStorage.getItem('mapitals-completed-capitals')
     return saved ? JSON.parse(saved) : []
@@ -62,25 +82,53 @@ function App() {
   const [capitalIndex, setCapitalIndex] = useState(0)
   const [stateCapitalIndex, setStateCapitalIndex] = useState(0)
 
-  // Load score and gamesPlayed from localStorage
-  const [score, setScore] = useState(() => {
-    const saved = localStorage.getItem('mapitals-score')
+  // Load score and gamesPlayed from localStorage (mode-specific)
+  const [dailyScore, setDailyScore] = useState(() => {
+    const saved = localStorage.getItem('mapitals-daily-score')
     return saved ? parseInt(saved, 10) : 0
   })
-  const [gamesPlayed, setGamesPlayed] = useState(() => {
-    const saved = localStorage.getItem('mapitals-games-played')
+  const [dailyGamesPlayed, setDailyGamesPlayed] = useState(() => {
+    const saved = localStorage.getItem('mapitals-daily-games-played')
+    return saved ? parseInt(saved, 10) : 0
+  })
+  const [practiceScore, setPracticeScore] = useState(() => {
+    const saved = localStorage.getItem('mapitals-practice-score')
+    return saved ? parseInt(saved, 10) : 0
+  })
+  const [practiceGamesPlayed, setPracticeGamesPlayed] = useState(() => {
+    const saved = localStorage.getItem('mapitals-practice-games-played')
     return saved ? parseInt(saved, 10) : 0
   })
 
-  // Streak tracking
-  const [currentStreak, setCurrentStreak] = useState(() => {
-    const saved = localStorage.getItem('mapitals-current-streak')
+  // Current mode's score and games played
+  const score = gameMode === 'daily' ? dailyScore : practiceScore
+  const gamesPlayed = gameMode === 'daily' ? dailyGamesPlayed : practiceGamesPlayed
+  const setScore = gameMode === 'daily' ? setDailyScore : setPracticeScore
+  const setGamesPlayed = gameMode === 'daily' ? setDailyGamesPlayed : setPracticeGamesPlayed
+
+  // Streak tracking (mode-specific)
+  const [dailyCurrentStreak, setDailyCurrentStreak] = useState(() => {
+    const saved = localStorage.getItem('mapitals-daily-current-streak')
     return saved ? parseInt(saved, 10) : 0
   })
-  const [bestStreak, setBestStreak] = useState(() => {
-    const saved = localStorage.getItem('mapitals-best-streak')
+  const [dailyBestStreak, setDailyBestStreak] = useState(() => {
+    const saved = localStorage.getItem('mapitals-daily-best-streak')
     return saved ? parseInt(saved, 10) : 0
   })
+  const [practiceCurrentStreak, setPracticeCurrentStreak] = useState(() => {
+    const saved = localStorage.getItem('mapitals-practice-current-streak')
+    return saved ? parseInt(saved, 10) : 0
+  })
+  const [practiceBestStreak, setPracticeBestStreak] = useState(() => {
+    const saved = localStorage.getItem('mapitals-practice-best-streak')
+    return saved ? parseInt(saved, 10) : 0
+  })
+
+  // Current mode's streaks
+  const currentStreak = gameMode === 'daily' ? dailyCurrentStreak : practiceCurrentStreak
+  const bestStreak = gameMode === 'daily' ? dailyBestStreak : practiceBestStreak
+  const setCurrentStreak = gameMode === 'daily' ? setDailyCurrentStreak : setPracticeCurrentStreak
+  const setBestStreak = gameMode === 'daily' ? setDailyBestStreak : setPracticeBestStreak
 
   const isUSStatesMode = region === 'US States'
 
@@ -89,24 +137,41 @@ function App() {
   [region]
   )
 
-  // Save score to localStorage whenever it changes
+  // Save daily scores to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('mapitals-score', score.toString())
-  }, [score])
-
-  // Save gamesPlayed to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('mapitals-games-played', gamesPlayed.toString())
-  }, [gamesPlayed])
-
-  // Save streaks to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('mapitals-current-streak', currentStreak.toString())
-  }, [currentStreak])
+    localStorage.setItem('mapitals-daily-score', dailyScore.toString())
+  }, [dailyScore])
 
   useEffect(() => {
-    localStorage.setItem('mapitals-best-streak', bestStreak.toString())
-  }, [bestStreak])
+    localStorage.setItem('mapitals-daily-games-played', dailyGamesPlayed.toString())
+  }, [dailyGamesPlayed])
+
+  // Save practice scores to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('mapitals-practice-score', practiceScore.toString())
+  }, [practiceScore])
+
+  useEffect(() => {
+    localStorage.setItem('mapitals-practice-games-played', practiceGamesPlayed.toString())
+  }, [practiceGamesPlayed])
+
+  // Save daily streaks to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('mapitals-daily-current-streak', dailyCurrentStreak.toString())
+  }, [dailyCurrentStreak])
+
+  useEffect(() => {
+    localStorage.setItem('mapitals-daily-best-streak', dailyBestStreak.toString())
+  }, [dailyBestStreak])
+
+  // Save practice streaks to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('mapitals-practice-current-streak', practiceCurrentStreak.toString())
+  }, [practiceCurrentStreak])
+
+  useEffect(() => {
+    localStorage.setItem('mapitals-practice-best-streak', practiceBestStreak.toString())
+  }, [practiceBestStreak])
 
   // Save completed capitals to localStorage whenever they change
   useEffect(() => {
@@ -118,12 +183,22 @@ function App() {
     localStorage.setItem('mapitals-show-stars', showStars.toString())
   }, [showStars])
 
+  // Update dailyCompleted when region changes
+  useEffect(() => {
+    setDailyCompleted(isDailyCompleted(region, todayDate))
+  }, [region, todayDate])
+
   const resetHistory = useCallback(() => {
     setCompletedCapitals([])
-    setScore(0)
-    setGamesPlayed(0)
-    setCurrentStreak(0)
-    setBestStreak(0)
+    // Reset both modes' stats
+    setDailyScore(0)
+    setDailyGamesPlayed(0)
+    setDailyCurrentStreak(0)
+    setDailyBestStreak(0)
+    setPracticeScore(0)
+    setPracticeGamesPlayed(0)
+    setPracticeCurrentStreak(0)
+    setPracticeBestStreak(0)
   }, [])
 
   // Shuffle capitals when region changes (for non-US States modes)
@@ -171,21 +246,74 @@ function App() {
   }, [shuffledStateCapitals, stateCapitalIndex])
 
   const startNewGame = useCallback(() => {
-    if (isUSStatesMode) {
-      setCurrentStateCapital(getNextStateCapital())
-      setCurrentCapital(null)
+    // In daily mode, use the deterministic daily capital
+    if (gameMode === 'daily') {
+      const dailyCapital = getDailyCapital(region, todayDate)
+      if (isUSStatesMode) {
+        setCurrentStateCapital(dailyCapital as StateCapital)
+        setCurrentCapital(null)
+      } else {
+        setCurrentCapital(dailyCapital as Capital)
+        setCurrentStateCapital(null)
+      }
+      // Check if already completed and restore state if so
+      const savedResult = getDailyResult(region, todayDate)
+      if (savedResult) {
+        setGuessedLetters(new Set(savedResult.guessedLetters))
+        setWrongGuesses(savedResult.wrongGuesses)
+        setGameOver(true)
+        setWon(savedResult.won)
+        setDailyCompleted(true)
+      } else {
+        setGuessedLetters(new Set())
+        setWrongGuesses(0)
+        setGameOver(false)
+        setWon(false)
+      }
     } else {
-      setCurrentCapital(getNextCapital())
-      setCurrentStateCapital(null)
+      // Practice mode: use shuffled capitals
+      if (isUSStatesMode) {
+        setCurrentStateCapital(getNextStateCapital())
+        setCurrentCapital(null)
+      } else {
+        setCurrentCapital(getNextCapital())
+        setCurrentStateCapital(null)
+      }
+      setGuessedLetters(new Set())
+      setWrongGuesses(0)
+      setGameOver(false)
+      setWon(false)
     }
-    setGuessedLetters(new Set())
-    setWrongGuesses(0)
-    setGameOver(false)
-    setWon(false)
     setIsInitialLoad(true)
     setShouldPan(false)
     setTimeout(() => setIsInitialLoad(false), 100)
-  }, [getNextCapital, getNextStateCapital, isUSStatesMode])
+  }, [getNextCapital, getNextStateCapital, isUSStatesMode, gameMode, region, todayDate])
+
+  // Handler for game over primary action (Next Region in daily mode, Play Again in practice mode)
+  const handleGameOverPrimaryAction = useCallback(() => {
+    if (gameMode === 'daily') {
+      // Check if all regions are now complete
+      if (areAllRegionsCompleted(todayDate, REGION_ORDER)) {
+        const results = getAllRegionResults(todayDate, REGION_ORDER)
+        setAllRegionResults(results)
+        setShowAllRegionsComplete(true)
+      } else {
+        // In daily mode, cycle to the next region
+        const index = REGION_ORDER.indexOf(region)
+        const nextRegion = REGION_ORDER[(index + 1) % REGION_ORDER.length]
+        setRegion(nextRegion) // The useEffect on region will call startNewGame
+      }
+    } else {
+      // In practice mode, just start a new game in the same region
+      startNewGame()
+    }
+  }, [gameMode, region, startNewGame, todayDate])
+
+  // Handler for switching to practice mode from the all regions complete modal
+  const handleTryPracticeMode = useCallback(() => {
+    setShowAllRegionsComplete(false)
+    setGameMode('practice')
+  }, [])
 
   // Initialize game on first load (only once)
   useEffect(() => {
@@ -210,6 +338,16 @@ function App() {
     }
     prevRegionRef.current = region
   }, [region, startNewGame])
+
+  // Start new game when game mode changes
+  const prevGameModeRef = useRef<GameMode | null>(null)
+  useEffect(() => {
+    if (prevGameModeRef.current !== null && prevGameModeRef.current !== gameMode) {
+      // Mode changed, start new game
+      startNewGame()
+    }
+    prevGameModeRef.current = gameMode
+  }, [gameMode, startNewGame])
 
   // Reset showOutline when a new game starts
   useEffect(() => {
@@ -270,6 +408,16 @@ function App() {
         setGamesPlayed(prev => prev + 1)
         // Reset streak on loss
         setCurrentStreak(0)
+        // Save daily result if in daily mode
+        if (gameMode === 'daily') {
+          saveDailyResult(region, todayDate, {
+            won: false,
+            wrongGuesses: newWrongGuesses,
+            guessedLetters: Array.from(newGuessedLetters)
+          })
+          markDailyCompleted(region, todayDate)
+          setDailyCompleted(true)
+        }
       }
     } else {
       const tempGuessed = new Set(newGuessedLetters)
@@ -296,9 +444,19 @@ function App() {
             wrongGuesses
           }])
         }
+        // Save daily result if in daily mode
+        if (gameMode === 'daily') {
+          saveDailyResult(region, todayDate, {
+            won: true,
+            wrongGuesses,
+            guessedLetters: Array.from(newGuessedLetters)
+          })
+          markDailyCompleted(region, todayDate)
+          setDailyCompleted(true)
+        }
       }
     }
-  }, [gameOver, guessedLetters, currentCapital, currentStateCapital, wrongGuesses, isUSStatesMode])
+  }, [gameOver, guessedLetters, currentCapital, currentStateCapital, wrongGuesses, isUSStatesMode, gameMode, region, todayDate, setScore, setGamesPlayed, setCurrentStreak, setBestStreak])
 
   const handleGiveUp = useCallback(() => {
     if (gameOver) return
@@ -307,7 +465,17 @@ function App() {
     setGamesPlayed(prev => prev + 1)
     // Reset streak on give up
     setCurrentStreak(0)
-  }, [gameOver])
+    // Save daily result if in daily mode
+    if (gameMode === 'daily') {
+      saveDailyResult(region, todayDate, {
+        won: false,
+        wrongGuesses,
+        guessedLetters: Array.from(guessedLetters)
+      })
+      markDailyCompleted(region, todayDate)
+      setDailyCompleted(true)
+    }
+  }, [gameOver, gameMode, region, todayDate, wrongGuesses, guessedLetters, setGamesPlayed, setCurrentStreak])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -386,6 +554,9 @@ function App() {
           showStars={showStars}
           setShowStars={setShowStars}
           onResetHistory={resetHistory}
+          gameMode={gameMode}
+          setGameMode={setGameMode}
+          dailyCompleted={dailyCompleted}
         />
 
         <main className="flex-1 relative">
@@ -457,8 +628,19 @@ function App() {
               city={city}
               regionName={regionName}
               wrongGuesses={wrongGuesses}
-              onPlayAgain={startNewGame}
+              onPlayAgain={handleGameOverPrimaryAction}
               isUSStatesMode={isUSStatesMode}
+              gameMode={gameMode}
+              region={region}
+              todayDate={todayDate}
+            />
+          )}
+
+          {showAllRegionsComplete && (
+            <AllRegionsCompleteModal
+              todayDate={todayDate}
+              results={allRegionResults}
+              onTryPracticeMode={handleTryPracticeMode}
             />
           )}
 

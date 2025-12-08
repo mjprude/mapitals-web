@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { MAX_WRONG_GUESSES } from '@/constants/game'
-import { GripHorizontal, ExternalLink } from 'lucide-react'
+import { GripHorizontal, ExternalLink, Share2, Check } from 'lucide-react'
+import { GameMode, generateShareText } from '@/utils/daily'
+import { Region } from '@/capitals'
 
 interface GameOverModalProps {
   won: boolean
@@ -10,6 +12,9 @@ interface GameOverModalProps {
   wrongGuesses: number
   onPlayAgain: () => void
   isUSStatesMode: boolean
+  gameMode: GameMode
+  region: Region
+  todayDate: string
 }
 
 interface WikipediaBlurb {
@@ -24,13 +29,28 @@ export function GameOverModal({
   wrongGuesses,
   onPlayAgain,
   isUSStatesMode,
+  gameMode,
+  region,
+  todayDate,
 }: GameOverModalProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const [wikipediaBlurb, setWikipediaBlurb] = useState<WikipediaBlurb | null>(null)
   const [isLoadingWikipedia, setIsLoadingWikipedia] = useState(true)
+  const [copied, setCopied] = useState(false)
   const modalRef = useRef<HTMLDivElement>(null)
+
+  const handleShare = useCallback(async () => {
+    const shareText = generateShareText(region, todayDate, won, wrongGuesses, MAX_WRONG_GUESSES)
+    try {
+      await navigator.clipboard.writeText(shareText)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err)
+    }
+  }, [region, todayDate, won, wrongGuesses])
 
   const fetchWikipediaBlurb = useCallback(async () => {
     setIsLoadingWikipedia(true)
@@ -179,12 +199,32 @@ export function GameOverModal({
           )}
         </div>
 
-        <Button
-          onClick={onPlayAgain}
-          className="w-full bg-gradient-to-r from-emerald-400 to-emerald-600 hover:from-emerald-300 hover:to-emerald-500 text-white mt-4 font-bold text-lg py-3 rounded-xl shadow-lg shadow-emerald-500/40 transition-all hover:scale-[1.02]"
-        >
-          Play Again
-        </Button>
+        <div className="flex gap-2 mt-4">
+          {gameMode === 'daily' && (
+            <Button
+              onClick={handleShare}
+              className="flex-1 bg-white/20 text-white border border-white/30 hover:bg-white/30 font-bold rounded-xl shadow-lg transition-all hover:scale-[1.02]"
+            >
+              {copied ? (
+                <>
+                  <Check size={16} className="mr-1" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Share2 size={16} className="mr-1" />
+                  Share
+                </>
+              )}
+            </Button>
+          )}
+          <Button
+            onClick={onPlayAgain}
+            className={`${gameMode === 'daily' ? 'flex-1' : 'w-full'} bg-gradient-to-r from-emerald-400 to-emerald-600 hover:from-emerald-300 hover:to-emerald-500 text-white font-bold text-lg py-3 rounded-xl shadow-lg shadow-emerald-500/40 transition-all hover:scale-[1.02]`}
+          >
+            {gameMode === 'daily' ? 'Next Region' : 'Play Again'}
+          </Button>
+        </div>
       </div>
     </div>
   )
