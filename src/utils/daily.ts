@@ -5,7 +5,7 @@ import { Region, Capital, StateCapital, CAPITALS, US_STATE_CAPITALS } from '../c
  * Uses a hash function to convert the seed to a number, then uses
  * a linear congruential generator for deterministic random numbers.
  */
-function seededRandom(seed: string): () => number {
+export function seededRandom(seed: string): () => number {
   let hash = 0
   for (let i = 0; i < seed.length; i++) {
     const char = seed.charCodeAt(i)
