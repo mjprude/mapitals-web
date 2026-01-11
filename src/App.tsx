@@ -649,7 +649,7 @@ function App() {
           )}
 
           <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center pb-4" style={{ zIndex: 1000 }}>
-            <div className="pointer-events-auto w-full max-w-4xl px-4 flex flex-col gap-3">
+            <div className="pointer-events-auto w-full flex flex-col gap-3">
               <GameDisplay
                 isUSStatesMode={isUSStatesMode}
                 displayCity={displayCity}
