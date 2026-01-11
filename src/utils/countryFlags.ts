@@ -1,0 +1,292 @@
+// Map country names to ISO 3166-1 alpha-2 codes
+const COUNTRY_CODES: Record<string, string> = {
+  // Americas
+  "United States": "US",
+  "Canada": "CA",
+  "Mexico": "MX",
+  "Brazil": "BR",
+  "Argentina": "AR",
+  "Peru": "PE",
+  "Colombia": "CO",
+  "Chile": "CL",
+  "Venezuela": "VE",
+  "Cuba": "CU",
+  "Guatemala": "GT",
+  "Ecuador": "EC",
+  "Bolivia": "BO",
+  "Paraguay": "PY",
+  "Uruguay": "UY",
+  "Costa Rica": "CR",
+  "Panama": "PA",
+  "Jamaica": "JM",
+  "Haiti": "HT",
+  "Dominican Republic": "DO",
+  "Honduras": "HN",
+  "Nicaragua": "NI",
+  "El Salvador": "SV",
+  "Bahamas": "BS",
+  "Barbados": "BB",
+  "Trinidad and Tobago": "TT",
+  "Guyana": "GY",
+  "Suriname": "SR",
+  "Belize": "BZ",
+  
+  // Europe
+  "United Kingdom": "GB",
+  "France": "FR",
+  "Germany": "DE",
+  "Italy": "IT",
+  "Spain": "ES",
+  "Russia": "RU",
+  "Ukraine": "UA",
+  "Sweden": "SE",
+  "Austria": "AT",
+  "Greece": "GR",
+  "Portugal": "PT",
+  "Ireland": "IE",
+  "Norway": "NO",
+  "Finland": "FI",
+  "Poland": "PL",
+  "Czech Republic": "CZ",
+  "Hungary": "HU",
+  "Netherlands": "NL",
+  "Belgium": "BE",
+  "Switzerland": "CH",
+  "Denmark": "DK",
+  "Romania": "RO",
+  "Bulgaria": "BG",
+  "Serbia": "RS",
+  "Croatia": "HR",
+  "Slovenia": "SI",
+  "Slovakia": "SK",
+  "Estonia": "EE",
+  "Latvia": "LV",
+  "Lithuania": "LT",
+  "Belarus": "BY",
+  "Moldova": "MD",
+  "Albania": "AL",
+  "North Macedonia": "MK",
+  "Montenegro": "ME",
+  "Bosnia and Herzegovina": "BA",
+  "Iceland": "IS",
+  "Luxembourg": "LU",
+  "Monaco": "MC",
+  "Andorra": "AD",
+  "Malta": "MT",
+  "San Marino": "SM",
+  "Vatican City": "VA",
+  
+  // Asia
+  "Japan": "JP",
+  "China": "CN",
+  "India": "IN",
+  "South Korea": "KR",
+  "Indonesia": "ID",
+  "Thailand": "TH",
+  "Turkey": "TR",
+  "Vietnam": "VN",
+  "Philippines": "PH",
+  "Malaysia": "MY",
+  "Singapore": "SG",
+  "Taiwan": "TW",
+  "Bangladesh": "BD",
+  "Pakistan": "PK",
+  "Afghanistan": "AF",
+  "Iran": "IR",
+  "Iraq": "IQ",
+  "Saudi Arabia": "SA",
+  "Israel": "IL",
+  "Jordan": "JO",
+  "Lebanon": "LB",
+  "Syria": "SY",
+  "United Arab Emirates": "AE",
+  "Qatar": "QA",
+  "Kuwait": "KW",
+  "Oman": "OM",
+  "Bahrain": "BH",
+  "Nepal": "NP",
+  "Sri Lanka": "LK",
+  "Bhutan": "BT",
+  "Maldives": "MV",
+  "Myanmar": "MM",
+  "Cambodia": "KH",
+  "Laos": "LA",
+  "North Korea": "KP",
+  "Mongolia": "MN",
+  "Kazakhstan": "KZ",
+  "Uzbekistan": "UZ",
+  "Kyrgyzstan": "KG",
+  "Tajikistan": "TJ",
+  "Turkmenistan": "TM",
+  "Azerbaijan": "AZ",
+  "Georgia": "GE",
+  "Armenia": "AM",
+  "Cyprus": "CY",
+  "Brunei": "BN",
+  "Timor-Leste": "TL",
+  
+  // Africa
+  "Egypt": "EG",
+  "Kenya": "KE",
+  "South Africa": "ZA",
+  "Nigeria": "NG",
+  "Ethiopia": "ET",
+  "Algeria": "DZ",
+  "Morocco": "MA",
+  "Tunisia": "TN",
+  "Libya": "LY",
+  "Sudan": "SD",
+  "Ghana": "GH",
+  "Senegal": "SN",
+  "Uganda": "UG",
+  "Tanzania": "TZ",
+  "Democratic Republic of the Congo": "CD",
+  "Angola": "AO",
+  "Mozambique": "MZ",
+  "Zimbabwe": "ZW",
+  "Zambia": "ZM",
+  "Namibia": "NA",
+  "Botswana": "BW",
+  "Madagascar": "MG",
+  "Mauritius": "MU",
+  "Ivory Coast": "CI",
+  "Mali": "ML",
+  "Burkina Faso": "BF",
+  "Niger": "NE",
+  "Guinea": "GN",
+  "Sierra Leone": "SL",
+  "Liberia": "LR",
+  "Togo": "TG",
+  "Benin": "BJ",
+  "Mauritania": "MR",
+  "Gabon": "GA",
+  "Republic of the Congo": "CG",
+  "Cameroon": "CM",
+  "Central African Republic": "CF",
+  "Chad": "TD",
+  "Rwanda": "RW",
+  "Burundi": "BI",
+  "Eritrea": "ER",
+  "Djibouti": "DJ",
+  "Somalia": "SO",
+  "South Sudan": "SS",
+  "Malawi": "MW",
+  "Seychelles": "SC",
+  "Comoros": "KM",
+  "Cape Verde": "CV",
+  "Sao Tome and Principe": "ST",
+  "Equatorial Guinea": "GQ",
+  "Eswatini": "SZ",
+  "Lesotho": "LS",
+  
+  // Oceania
+  "Australia": "AU",
+  "New Zealand": "NZ",
+  "Papua New Guinea": "PG",
+  "Fiji": "FJ",
+  "Solomon Islands": "SB",
+  "Vanuatu": "VU",
+  "Samoa": "WS",
+  "Tonga": "TO",
+  "Kiribati": "KI",
+  "Marshall Islands": "MH",
+  "Micronesia": "FM",
+  "Nauru": "NR",
+  "Tuvalu": "TV",
+  "Palau": "PW",
+}
+
+// US State abbreviations for state flags (using state flag emojis where available)
+const US_STATE_CODES: Record<string, string> = {
+  "Alabama": "AL",
+  "Alaska": "AK",
+  "Arizona": "AZ",
+  "Arkansas": "AR",
+  "California": "CA",
+  "Colorado": "CO",
+  "Connecticut": "CT",
+  "Delaware": "DE",
+  "Florida": "FL",
+  "Georgia": "GA",
+  "Hawaii": "HI",
+  "Idaho": "ID",
+  "Illinois": "IL",
+  "Indiana": "IN",
+  "Iowa": "IA",
+  "Kansas": "KS",
+  "Kentucky": "KY",
+  "Louisiana": "LA",
+  "Maine": "ME",
+  "Maryland": "MD",
+  "Massachusetts": "MA",
+  "Michigan": "MI",
+  "Minnesota": "MN",
+  "Mississippi": "MS",
+  "Missouri": "MO",
+  "Montana": "MT",
+  "Nebraska": "NE",
+  "Nevada": "NV",
+  "New Hampshire": "NH",
+  "New Jersey": "NJ",
+  "New Mexico": "NM",
+  "New York": "NY",
+  "North Carolina": "NC",
+  "North Dakota": "ND",
+  "Ohio": "OH",
+  "Oklahoma": "OK",
+  "Oregon": "OR",
+  "Pennsylvania": "PA",
+  "Rhode Island": "RI",
+  "South Carolina": "SC",
+  "South Dakota": "SD",
+  "Tennessee": "TN",
+  "Texas": "TX",
+  "Utah": "UT",
+  "Vermont": "VT",
+  "Virginia": "VA",
+  "Washington": "WA",
+  "West Virginia": "WV",
+  "Wisconsin": "WI",
+  "Wyoming": "WY",
+}
+
+/**
+ * Convert a two-letter country code to a flag emoji
+ * Flag emojis are created by converting each letter to a regional indicator symbol
+ * A-Z maps to Unicode code points U+1F1E6 to U+1F1FF
+ */
+function countryCodeToFlag(countryCode: string): string {
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 0x1F1E6 + char.charCodeAt(0) - 65)
+  return String.fromCodePoint(...codePoints)
+}
+
+/**
+ * Get the flag emoji for a country name
+ * Returns the flag emoji or an empty string if the country is not found
+ */
+export function getCountryFlag(countryName: string): string {
+  const countryCode = COUNTRY_CODES[countryName]
+  if (countryCode) {
+    return countryCodeToFlag(countryCode)
+  }
+  return ''
+}
+
+/**
+ * Get the US flag emoji for US states (since states don't have individual flag emojis)
+ * Returns the US flag for all US states
+ */
+export function getStateFlag(): string {
+  // US states don't have individual flag emojis, so we return the US flag
+  return countryCodeToFlag('US')
+}
+
+/**
+ * Check if a state name is a valid US state
+ */
+export function isUSState(stateName: string): boolean {
+  return stateName in US_STATE_CODES
+}

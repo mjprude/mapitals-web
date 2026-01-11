@@ -4,6 +4,7 @@ import { MAX_WRONG_GUESSES } from '@/constants/game'
 import { GripHorizontal, ExternalLink, Share2, Check } from 'lucide-react'
 import { GameMode, generateShareText } from '@/utils/daily'
 import { Region } from '@/capitals'
+import { getCountryFlag, getStateFlag } from '@/utils/countryFlags'
 
 interface GameOverModalProps {
   won: boolean
@@ -28,6 +29,7 @@ export function GameOverModal({
   regionName,
   wrongGuesses,
   onPlayAgain,
+  isUSStatesMode,
   gameMode,
   region,
   todayDate,
@@ -165,7 +167,7 @@ export function GameOverModal({
           {won ? "Congratulations!" : "Game Over!"}
         </h2>
         <p className="text-xl mb-2">
-          The answer was: <span className="font-bold text-amber-300">{city}</span>, <span className="font-bold text-cyan-300">{regionName}</span>
+          The answer was: <span className="font-bold text-amber-300">{city}</span>, <span className="font-bold text-cyan-300">{regionName}</span> {isUSStatesMode ? getStateFlag() : getCountryFlag(regionName)}
         </p>
         {won && (
           <p className="text-lg mb-4">
