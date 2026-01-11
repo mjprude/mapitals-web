@@ -605,9 +605,9 @@ function App() {
             </MapContainer>
           </div>
 
-          <div className="absolute top-4 left-4 bg-gradient-to-r from-rose-500 to-pink-500 px-4 py-2 rounded-xl backdrop-blur-sm flex items-center gap-3 shadow-lg shadow-rose-500/30" style={{ zIndex: 1000 }}>
+          <div className="absolute top-4 right-4 bg-gradient-to-r from-rose-500 to-pink-500 px-3 py-2 rounded-xl backdrop-blur-sm flex items-center gap-2 shadow-lg shadow-rose-500/30" style={{ zIndex: 1000 }}>
             <span className="text-white font-bold">
-              Wrong guesses: {wrongGuesses} / {MAX_WRONG_GUESSES}
+              {wrongGuesses} / {MAX_WRONG_GUESSES}
             </span>
             {!gameOver && (
               <Button
