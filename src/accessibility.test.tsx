@@ -25,6 +25,9 @@ describe('Accessibility Tests', () => {
           showStars={true}
           setShowStars={() => {}}
           onResetHistory={() => {}}
+          gameMode="daily"
+          setGameMode={() => {}}
+          dailyCompleted={false}
         />
       )
       const results = await axe(container)
@@ -72,6 +75,9 @@ describe('Accessibility Tests', () => {
           wrongGuesses={2}
           onPlayAgain={() => {}}
           isUSStatesMode={false}
+          gameMode="daily"
+          region="World"
+          todayDate="2026-01-11"
         />
       )
       const results = await axe(container)
@@ -87,6 +93,9 @@ describe('Accessibility Tests', () => {
           wrongGuesses={6}
           onPlayAgain={() => {}}
           isUSStatesMode={false}
+          gameMode="daily"
+          region="Asia"
+          todayDate="2026-01-11"
         />
       )
       const results = await axe(container)
