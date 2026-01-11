@@ -249,6 +249,7 @@ export function Header({
                 className="text-white hover:bg-white/20 flex items-center gap-2 px-2"
               >
                 <Menu size={20} />
+                <img src="/favicon.svg" alt="Mapitals logo" className="w-6 h-6" />
                 <h1 className="text-xl font-bold">Mapitals</h1>
               </Button>
             </>
@@ -256,7 +257,10 @@ export function Header({
             /* Desktop: Full header */
             <>
               <div className="flex items-center gap-4">
-                <h1 className="text-2xl font-bold text-white">Mapitals</h1>
+                <div className="flex items-center gap-2">
+                  <img src="/favicon.svg" alt="Mapitals logo" className="w-8 h-8" />
+                  <h1 className="text-2xl font-bold text-white">Mapitals</h1>
+                </div>
                 <div className="flex bg-white/20 rounded-lg p-1">
                   <Button
                     variant="ghost"
