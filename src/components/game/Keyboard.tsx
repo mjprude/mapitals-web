@@ -37,7 +37,7 @@ export const Keyboard = forwardRef<HTMLDivElement, KeyboardProps>(
         }
           `}
         >
-          {letter}
+          {letter}{isGuessed && isCorrect && ' 🚩'}
         </Button>
       )
     }
