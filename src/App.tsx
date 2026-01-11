@@ -605,7 +605,7 @@ function App() {
             </MapContainer>
           </div>
 
-          <div className="fixed top-3 right-4 bg-gradient-to-r from-rose-500 to-pink-500 px-3 py-2 rounded-xl backdrop-blur-sm flex items-center gap-2 shadow-lg shadow-rose-500/30" style={{ zIndex: 100 }}>
+          <div className="fixed top-2 right-4 bg-gradient-to-r from-rose-500 to-pink-500 px-3 py-2 rounded-xl backdrop-blur-sm flex items-center gap-2 shadow-lg shadow-rose-500/30" style={{ zIndex: 100 }}>
             <span className="text-white font-bold">
               {wrongGuesses} / {MAX_WRONG_GUESSES}
             </span>
