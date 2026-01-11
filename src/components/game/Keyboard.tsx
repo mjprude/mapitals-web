@@ -53,7 +53,7 @@ export const Keyboard = forwardRef<HTMLDivElement, KeyboardProps>(
       <div 
         ref={ref} 
         tabIndex={-1} 
-        className={`bg-white/10 backdrop-blur-sm outline-none shadow-lg w-full ${isMobile ? 'rounded-none py-2' : 'rounded-xl px-3 py-3'}`}
+        className={`bg-white/10 backdrop-blur-sm outline-none shadow-lg w-full ${isMobile ? 'rounded-none px-2 py-2' : 'rounded-xl px-3 py-3'}`}
         aria-label="Guess a letter"
       >
         <div className="flex flex-col items-center gap-1.5 w-full">
