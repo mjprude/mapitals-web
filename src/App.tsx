@@ -62,6 +62,8 @@ function App() {
   const [celebrationWrongGuesses, setCelebrationWrongGuesses] = useState(0)
   const [showGameOverModal, setShowGameOverModal] = useState(false)
   const [pendingWinCelebration, setPendingWinCelebration] = useState(false)
+  const [pendingLossModal, setPendingLossModal] = useState(false)
+  const [pendingCompletedCapital, setPendingCompletedCapital] = useState<CompletedCapital | null>(null)
   const [allRegionResults, setAllRegionResults] = useState<Map<Region, DailyResult | null>>(new Map())
   const [completedCapitals, setCompletedCapitals] = useState<CompletedCapital[]>(() => {
     const saved = localStorage.getItem('mapitals-completed-capitals')
@@ -323,8 +325,13 @@ function App() {
   // Handler for when the star celebration animation completes
   const handleStarCelebrationComplete = useCallback(() => {
     setShowStarCelebration(false)
+    // Add the completed capital to the map now that the animation is done
+    if (pendingCompletedCapital) {
+      setCompletedCapitals(prev => [...prev, pendingCompletedCapital])
+      setPendingCompletedCapital(null)
+    }
     setShowGameOverModal(true)
-  }, [])
+  }, [pendingCompletedCapital])
 
   // Initialize game on first load (only once)
   useEffect(() => {
@@ -366,6 +373,8 @@ function App() {
       setShowOutline(false)
       setShowGameOverModal(false)
       setPendingWinCelebration(false)
+      setPendingLossModal(false)
+      setPendingCompletedCapital(null)
     }
   }, [gameOver])
 
@@ -377,6 +386,15 @@ function App() {
       setShowStarCelebration(true)
     }
   }, [showOutline, pendingWinCelebration, won])
+
+  // When zoom completes (showOutline becomes true) and we have a pending loss modal,
+  // show the game over modal
+  useEffect(() => {
+    if (showOutline && pendingLossModal && !won) {
+      setPendingLossModal(false)
+      setShowGameOverModal(true)
+    }
+  }, [showOutline, pendingLossModal, won])
 
   useEffect(() => {
     fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
@@ -426,6 +444,8 @@ function App() {
       setWrongGuesses(newWrongGuesses)
       setShouldPan(true)
       if (newWrongGuesses >= MAX_WRONG_GUESSES) {
+        // Trigger the map zoom first, then show modal after zoom completes
+        setPendingLossModal(true)
         setGameOver(true)
         setGamesPlayed(prev => prev + 1)
         // Reset streak on loss
@@ -458,16 +478,16 @@ function App() {
           setBestStreak(best => Math.max(best, newStreak))
           return newStreak
         })
-        // Add completed capital with star marker
+        // Store pending completed capital - will be added after star animation completes
         const lat = isUSStatesMode ? currentStateCapital?.lat : currentCapital?.lat
         const lng = isUSStatesMode ? currentStateCapital?.lng : currentCapital?.lng
         if (lat !== undefined && lng !== undefined) {
-          setCompletedCapitals(prev => [...prev, {
+          setPendingCompletedCapital({
             lat,
             lng,
             city,
             wrongGuesses
-          }])
+          })
         }
         // Save daily result if in daily mode
         if (gameMode === 'daily') {
@@ -485,6 +505,8 @@ function App() {
 
   const handleGiveUp = useCallback(() => {
     if (gameOver) return
+    // Trigger the map zoom first, then show modal after zoom completes
+    setPendingLossModal(true)
     setGameOver(true)
     setWon(false)
     setGamesPlayed(prev => prev + 1)
@@ -654,7 +676,7 @@ function App() {
             />
           )}
 
-          {((showGameOverModal && won) || (gameOver && !won)) && city && regionName && (
+          {showGameOverModal && city && regionName && (
             <GameOverModal
               won={won}
               city={city}
