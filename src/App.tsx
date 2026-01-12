@@ -718,7 +718,7 @@ function App() {
               />
             </div>
 
-            <div className={`pointer-events-auto w-full ${isMobile ? '' : 'max-w-4xl px-4'} mt-3`}>
+            <div className={`pointer-events-auto w-full ${isMobile ? 'pb-6' : 'max-w-4xl px-4'} mt-3`}>
               <Keyboard
                 ref={keyboardRef}
                 guessedLetters={guessedLetters}
