@@ -24,6 +24,8 @@ describe('Accessibility Tests', () => {
           onShowInfo={() => {}}
           showStars={true}
           setShowStars={() => {}}
+          showRegionHint={false}
+          setShowRegionHint={() => {}}
           onResetHistory={() => {}}
           gameMode="daily"
           setGameMode={() => {}}

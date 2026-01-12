@@ -166,7 +166,7 @@ export function Header({
           />
         </div>
         <div className="flex items-center justify-between bg-slate-700 rounded-lg p-3">
-          <span className="text-white">Show country/state hint</span>
+          <span className="text-white">Reveal Country/State</span>
           <Switch
             checked={showRegionHint}
             onCheckedChange={setShowRegionHint}
@@ -327,7 +327,7 @@ export function Header({
                       onSelect={(e) => e.preventDefault()}
                     >
                       <div className="flex items-center justify-between w-full gap-4">
-                        <span>Show Country/State Hint</span>
+                        <span>Reveal Country/State</span>
                         <Switch
                           checked={showRegionHint}
                           onCheckedChange={setShowRegionHint}
