@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { RegionSelector } from './RegionSelector'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -121,26 +121,12 @@ export function Header({
       {/* Region Selector */}
       <div className="flex flex-col gap-2">
         <span className="text-slate-300 text-sm font-medium">Region</span>
-        <Select
-          value={region}
-          onValueChange={(value) => {
-            setRegion(value as Region)
-            setShowMobileMenu(false)
-          }}
-        >
-          <SelectTrigger className="w-full bg-slate-700 border-slate-600 text-white hover:bg-slate-600" aria-label="Select region">
-            <SelectValue placeholder="Region" />
-          </SelectTrigger>
-          <SelectContent className="bg-slate-800 border-slate-600" style={{ zIndex: 9999 }}>
-            <SelectItem value="World" className="text-white hover:bg-slate-700">World</SelectItem>
-            <SelectItem value="Americas" className="text-white hover:bg-slate-700">Americas</SelectItem>
-            <SelectItem value="Europe" className="text-white hover:bg-slate-700">Europe</SelectItem>
-            <SelectItem value="Asia" className="text-white hover:bg-slate-700">Asia</SelectItem>
-            <SelectItem value="Africa" className="text-white hover:bg-slate-700">Africa</SelectItem>
-            <SelectItem value="Oceania" className="text-white hover:bg-slate-700">Oceania</SelectItem>
-            <SelectItem value="US States" className="text-white hover:bg-slate-700">US States</SelectItem>
-          </SelectContent>
-        </Select>
+        <RegionSelector
+          region={region}
+          setRegion={setRegion}
+          variant="menu"
+          onSelect={() => setShowMobileMenu(false)}
+        />
       </div>
 
       {/* Stats */}
@@ -241,8 +227,8 @@ export function Header({
       <header className="bg-gradient-to-r from-[#7751f8] via-[#8b5cf6] to-[#06b6d4] p-3 shadow-lg z-50">
         <div className="container mx-auto flex justify-between items-center">
           {isMobile ? (
-            /* Mobile: Just logo with menu button */
-            <>
+          /* Mobile: Menu button, logo, and region selector on the left */
+            <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
                 onClick={() => setShowMobileMenu(true)}
@@ -250,10 +236,15 @@ export function Header({
               >
                 <Menu size={20} />
                 <img src="/favicon.svg" alt="Mapitals logo" className="w-6 h-6" />
-                <h1 className="text-xl font-bold">Mapitals</h1>
               </Button>
-            </>
-          ) : (
+              <RegionSelector
+                region={region}
+                setRegion={setRegion}
+                onOpenChange={onOpenChange}
+                variant="header-compact"
+              />
+            </div>
+          ): (
             /* Desktop: Full header */
             <>
               <div className="flex items-center gap-4">
@@ -338,24 +329,12 @@ export function Header({
                 >
                   <Info size={20} />
                 </Button>
-                <Select
-                  value={region}
-                  onValueChange={(value) => setRegion(value as Region)}
+                <RegionSelector
+                  region={region}
+                  setRegion={setRegion}
                   onOpenChange={onOpenChange}
-                >
-                  <SelectTrigger className="w-32 bg-white/20 border-white/30 text-white hover:bg-white/30" aria-label="Select region">
-                    <SelectValue placeholder="Region" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-600" style={{ zIndex: 9999 }}>
-                    <SelectItem value="World" className="text-white hover:bg-slate-700">World</SelectItem>
-                    <SelectItem value="Americas" className="text-white hover:bg-slate-700">Americas</SelectItem>
-                    <SelectItem value="Europe" className="text-white hover:bg-slate-700">Europe</SelectItem>
-                    <SelectItem value="Asia" className="text-white hover:bg-slate-700">Asia</SelectItem>
-                    <SelectItem value="Africa" className="text-white hover:bg-slate-700">Africa</SelectItem>
-                    <SelectItem value="Oceania" className="text-white hover:bg-slate-700">Oceania</SelectItem>
-                    <SelectItem value="US States" className="text-white hover:bg-slate-700">US States</SelectItem>
-                  </SelectContent>
-                </Select>
+                  variant="header"
+                />
                 <div className="flex items-center gap-2 text-sm">
                   <span className="bg-white/20 px-2 py-1 rounded-full">
                     <span className="text-white/90">Score: </span>
