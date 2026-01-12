@@ -2,10 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
+html, body, #root {
   margin: 0;
   padding: 0;
   overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
+}
+
+.h-screen-safe {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.min-h-screen-safe {
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .leaflet-container {

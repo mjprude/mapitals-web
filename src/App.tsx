@@ -589,8 +589,8 @@ function App() {
     : (currentCapital ? (gameOver ? currentCapital.country : getDisplayText(currentCapital.country)) : '')
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
-      <div className="flex flex-col h-screen">
+    <div className="min-h-screen-safe bg-slate-900 text-white">
+      <div className="flex flex-col h-screen-safe">
         <Header
           region={region}
           setRegion={setRegion}
