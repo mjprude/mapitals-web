@@ -180,7 +180,7 @@ export function GameOverModal({
         
         <div className="mt-4 p-3 bg-white/10 rounded-xl border border-white/20">
           <h3 className="text-sm font-bold text-cyan-300 mb-2 uppercase tracking-wide">
-            About {regionName}
+            About {city}
           </h3>
           {isLoadingWikipedia ? (
             <p className="text-sm text-white/60 italic">Loading...</p>
