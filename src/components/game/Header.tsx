@@ -42,6 +42,8 @@ interface HeaderProps {
   onShowInfo: () => void
   showStars: boolean
   setShowStars: (show: boolean) => void
+  showRegionHint: boolean
+  setShowRegionHint: (show: boolean) => void
   onResetHistory: () => void
   gameMode: GameMode
   setGameMode: (mode: GameMode) => void
@@ -60,6 +62,8 @@ export function Header({
   onShowInfo,
   showStars,
   setShowStars,
+  showRegionHint,
+  setShowRegionHint,
   onResetHistory,
   gameMode,
   setGameMode,
@@ -159,6 +163,13 @@ export function Header({
           <Switch
             checked={showStars}
             onCheckedChange={setShowStars}
+          />
+        </div>
+        <div className="flex items-center justify-between bg-slate-700 rounded-lg p-3">
+          <span className="text-white">Reveal Country/State</span>
+          <Switch
+            checked={showRegionHint}
+            onCheckedChange={setShowRegionHint}
           />
         </div>
       </div>
@@ -308,6 +319,18 @@ export function Header({
                         <Switch
                           checked={showStars}
                           onCheckedChange={setShowStars}
+                        />
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="hover:bg-slate-700 focus:bg-slate-700 cursor-pointer"
+                      onSelect={(e) => e.preventDefault()}
+                    >
+                      <div className="flex items-center justify-between w-full gap-4">
+                        <span>Reveal Country/State</span>
+                        <Switch
+                          checked={showRegionHint}
+                          onCheckedChange={setShowRegionHint}
                         />
                       </div>
                     </DropdownMenuItem>

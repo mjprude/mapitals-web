@@ -76,6 +76,10 @@ function App() {
     const saved = localStorage.getItem('mapitals-show-stars')
     return saved !== null ? saved === 'true' : true
   })
+  const [showRegionHint, setShowRegionHint] = useState(() => {
+    const saved = localStorage.getItem('mapitals-show-region-hint')
+    return saved !== null ? saved === 'true' : false
+  })
 
   const handleOpenChange = (open: boolean) => {
     setIsRegionMenuOpen(open)
@@ -192,6 +196,11 @@ function App() {
   useEffect(() => {
     localStorage.setItem('mapitals-show-stars', showStars.toString())
   }, [showStars])
+
+  // Save showRegionHint to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('mapitals-show-region-hint', showRegionHint.toString())
+  }, [showRegionHint])
 
   // Update dailyCompleted when region changes
   useEffect(() => {
@@ -585,8 +594,8 @@ function App() {
     : (currentCapital ? (gameOver ? currentCapital.city : getDisplayText(currentCapital.city)) : '')
 
   const displayRegion = isUSStatesMode
-    ? (currentStateCapital ? (gameOver ? currentStateCapital.state : getDisplayText(currentStateCapital.state)) : '')
-    : (currentCapital ? (gameOver ? currentCapital.country : getDisplayText(currentCapital.country)) : '')
+    ? (currentStateCapital ? (gameOver || showRegionHint ? currentStateCapital.state : getDisplayText(currentStateCapital.state)) : '')
+    : (currentCapital ? (gameOver || showRegionHint ? currentCapital.country : getDisplayText(currentCapital.country)) : '')
 
   return (
     <div className="min-h-screen-safe bg-slate-900 text-white">
@@ -603,6 +612,8 @@ function App() {
           onShowInfo={() => setShowInfo(true)}
           showStars={showStars}
           setShowStars={setShowStars}
+          showRegionHint={showRegionHint}
+          setShowRegionHint={setShowRegionHint}
           onResetHistory={resetHistory}
           gameMode={gameMode}
           setGameMode={setGameMode}
