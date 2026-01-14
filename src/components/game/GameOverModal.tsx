@@ -43,6 +43,7 @@ export function GameOverModal({
   const [isLoadingWikipedia, setIsLoadingWikipedia] = useState(true)
   const [copied, setCopied] = useState(false)
   const modalRef = useRef<HTMLDivElement>(null)
+  const playAgainButtonRef = useRef<HTMLButtonElement>(null)
 
   const handleShare = useCallback(async () => {
     const shareText = generateShareText(region, todayDate, won, wrongGuesses, MAX_WRONG_GUESSES)
@@ -92,6 +93,10 @@ export function GameOverModal({
   useEffect(() => {
     setPosition({ x: 0, y: 0 })
   }, [city, regionName])
+
+  useEffect(() => {
+    playAgainButtonRef.current?.focus()
+  }, [])
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('.drag-handle')) {
@@ -223,6 +228,7 @@ export function GameOverModal({
             </Button>
           )}
           <Button
+            ref={playAgainButtonRef}
             onClick={onPlayAgain}
             className={`${gameMode === 'daily' ? 'flex-1' : 'w-full'} bg-gradient-to-r from-emerald-400 to-emerald-600 hover:from-emerald-300 hover:to-emerald-500 text-white font-bold text-lg py-3 rounded-xl shadow-lg shadow-emerald-500/40 transition-all hover:scale-[1.02]`}
           >
