@@ -620,50 +620,52 @@ function App() {
           dailyCompleted={dailyCompleted}
         />
 
-        <main className="flex-1 relative">
+        <main className="flex-1 relative overflow-hidden">
           <div className="absolute inset-0 bg-[#7751f8]">
-            <MapContainer
-              center={[0, 0]}
-              zoom={2}
-              className="h-full w-full"
-              zoomControl={false}
-              attributionControl={false}
-              dragging={false}
-              scrollWheelZoom={false}
-              doubleClickZoom={false}
-              touchZoom={false}
-              zoomSnap={0.5}
-            >
-              <TileLayer
-                key={gameOver ? 'political' : 'satellite'}
-                url={tileUrl}
-              />
-              {gameOver && showOutline && countryGeoJson && currentCapital && !isUSStatesMode && (
-                <GeoJSON
-                  key={currentCapital.country}
-                  data={countryGeoJson}
-                  style={getCountryStyle}
-                  filter={(feature) => {
-                    const countryName = feature.properties?.ADMIN || feature.properties?.name
-                    return countryName?.toLowerCase() === currentCapital.country.toLowerCase()
-                  }}
+            <div className="absolute inset-[-25%] w-[150%] h-[150%]">
+              <MapContainer
+                center={[0, 0]}
+                zoom={2}
+                className="h-full w-full"
+                zoomControl={false}
+                attributionControl={false}
+                dragging={false}
+                scrollWheelZoom={false}
+                doubleClickZoom={false}
+                touchZoom={false}
+                zoomSnap={0.5}
+              >
+                <TileLayer
+                  key={gameOver ? 'political' : 'satellite'}
+                  url={tileUrl}
                 />
-              )}
-              <MapController 
-                zoom={currentZoom} 
-                center={mapCenter} 
-                isInitial={isInitialLoad} 
-                shouldPan={shouldPan} 
-                setShouldPan={setShouldPan}
-                gameOver={gameOver} 
-                isUSStatesMode={isUSStatesMode}
-                countryGeoJson={countryGeoJson}
-                statesGeoJson={statesGeoJson}
-                targetName={isUSStatesMode ? currentStateCapital?.state ?? null : currentCapital?.country ?? null}
-                setShowOutline={setShowOutline}
-              />
-              {showStars && <StarMarkers completedCapitals={completedCapitals} />}
-            </MapContainer>
+                {gameOver && showOutline && countryGeoJson && currentCapital && !isUSStatesMode && (
+                  <GeoJSON
+                    key={currentCapital.country}
+                    data={countryGeoJson}
+                    style={getCountryStyle}
+                    filter={(feature) => {
+                      const countryName = feature.properties?.ADMIN || feature.properties?.name
+                      return countryName?.toLowerCase() === currentCapital.country.toLowerCase()
+                    }}
+                  />
+                )}
+                <MapController 
+                  zoom={currentZoom} 
+                  center={mapCenter} 
+                  isInitial={isInitialLoad} 
+                  shouldPan={shouldPan} 
+                  setShouldPan={setShouldPan}
+                  gameOver={gameOver} 
+                  isUSStatesMode={isUSStatesMode}
+                  countryGeoJson={countryGeoJson}
+                  statesGeoJson={statesGeoJson}
+                  targetName={isUSStatesMode ? currentStateCapital?.state ?? null : currentCapital?.country ?? null}
+                  setShowOutline={setShowOutline}
+                />
+                {showStars && <StarMarkers completedCapitals={completedCapitals} />}
+              </MapContainer>
+            </div>
           </div>
 
           <div className={`${isMobile ? 'fixed top-2' : 'absolute top-4'} right-4 bg-gradient-to-r from-rose-500 to-pink-500 px-3 py-2 rounded-xl backdrop-blur-sm flex items-center gap-2 shadow-lg shadow-rose-500/30`} style={{ zIndex: 1000 }}>
