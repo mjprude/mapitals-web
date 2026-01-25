@@ -55,6 +55,7 @@ function App() {
   const [showOutline, setShowOutline] = useState(false)
   const keyboardRef = useRef<HTMLDivElement | null>(null)
   const hasGameInitializedRef = useRef(false)
+  const needStartNewGameAfterShuffleRef = useRef(false)
   
   // Game mode: 'daily' (default) or 'practice'
   const [gameMode, setGameMode] = useState<GameMode>('daily')
@@ -223,6 +224,7 @@ function App() {
   // Shuffle capitals when region changes (for non-US States modes)
   useEffect(() => {
     if (!isUSStatesMode) {
+      needStartNewGameAfterShuffleRef.current = true
       setShuffledCapitals(shuffleArray(capitalsForRegion))
       setCapitalIndex(0)
     }
@@ -231,6 +233,7 @@ function App() {
   // Shuffle state capitals when switching to US States mode
   useEffect(() => {
     if (isUSStatesMode) {
+      needStartNewGameAfterShuffleRef.current = true
       setShuffledStateCapitals(shuffleArray(US_STATE_CAPITALS))
       setStateCapitalIndex(0)
     }
@@ -359,15 +362,17 @@ function App() {
     }
   }, [shuffledCapitals.length, shuffledStateCapitals.length, isUSStatesMode, startNewGame])
 
-  // Start new game when region changes (after shuffle is done)
-  const prevRegionRef = useRef<Region | null>(null)
+  // Start new game when shuffled lists have been updated after a region/mode change.
+  // This runs after the shuffle effects have committed, so getNextCapital sees the correct list.
+  // (getNextCapital's mid-game reshuffle does not set needStartNewGameAfterShuffleRef.)
   useEffect(() => {
-    if (prevRegionRef.current !== null && prevRegionRef.current !== region) {
-      // Region changed, start new game after a short delay to let shuffle complete
-      setTimeout(() => startNewGame(), 50)
+    if (!needStartNewGameAfterShuffleRef.current) return
+    needStartNewGameAfterShuffleRef.current = false
+    if (hasGameInitializedRef.current) {
+      startNewGame()
     }
-    prevRegionRef.current = region
-  }, [region, startNewGame])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only run when lists change; startNewGame from closure is correct
+  }, [shuffledCapitals, shuffledStateCapitals])
 
   // Start new game when game mode changes
   const prevGameModeRef = useRef<GameMode | null>(null)
