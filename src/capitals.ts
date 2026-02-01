@@ -189,7 +189,7 @@ export const CAPITALS: Capital[] = [
   { city: "Yerevan", country: "Armenia", lat: 40.1792, lng: 44.4991, region: "Asia" },
   { city: "Nicosia", country: "Cyprus", lat: 35.1856, lng: 33.3823, region: "Asia" },
   { city: "Bandar Seri Begawan", country: "Brunei", lat: 4.9031, lng: 114.9398, region: "Asia" },
-  { city: "Dili", country: "Timor-Leste", lat: -8.5569, lng: 125.5603, region: "Asia" },
+  { city: "Dili", country: "Timor-Leste", lat: -8.5569, lng: 125.5603, region: "Oceania" },
   { city: "Cairo", country: "Egypt", lat: 30.0444, lng: 31.2357, region: "Africa" },
   { city: "Nairobi", country: "Kenya", lat: -1.2921, lng: 36.8219, region: "Africa" },
   { city: "Pretoria", country: "South Africa", lat: -25.7479, lng: 28.2293, region: "Africa" },

@@ -71,6 +71,30 @@ describe('CAPITALS data', () => {
     expect(cities).toContain('Tokyo')
     expect(cities).toContain('Berlin')
   })
+
+  it('should correctly classify Oceania countries', () => {
+    const oceaniaCountries = CAPITALS.filter(c => c.region === 'Oceania')
+    const oceaniaCountryNames = oceaniaCountries.map(c => c.country)
+    
+    // Verify known Oceania countries are in the Oceania region
+    expect(oceaniaCountryNames).toContain('Australia')
+    expect(oceaniaCountryNames).toContain('New Zealand')
+    expect(oceaniaCountryNames).toContain('Papua New Guinea')
+    expect(oceaniaCountryNames).toContain('Fiji')
+    expect(oceaniaCountryNames).toContain('Timor-Leste')
+  })
+
+  it('should not have Oceania countries in Asia region', () => {
+    const asiaCountries = CAPITALS.filter(c => c.region === 'Asia')
+    const asiaCountryNames = asiaCountries.map(c => c.country)
+    
+    // Verify Oceania countries are not in Asia
+    expect(asiaCountryNames).not.toContain('Timor-Leste')
+    expect(asiaCountryNames).not.toContain('Australia')
+    expect(asiaCountryNames).not.toContain('New Zealand')
+    expect(asiaCountryNames).not.toContain('Papua New Guinea')
+    expect(asiaCountryNames).not.toContain('Fiji')
+  })
 })
 
 describe('US_STATE_CAPITALS data', () => {
