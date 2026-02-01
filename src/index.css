@@ -37,6 +37,15 @@ html, body, #root {
   padding-right: env(safe-area-inset-right);
 }
 
+/* For positioned elements that need to account for safe areas */
+.safe-area-top-offset {
+  top: calc(0.5rem + env(safe-area-inset-top));
+}
+
+.safe-area-right-offset {
+  right: calc(1rem + env(safe-area-inset-right));
+}
+
 .leaflet-container {
   background: linear-gradient(to right, #7751f8, #8b5cf6, #06b6d4) !important;
 }
