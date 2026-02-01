@@ -224,7 +224,9 @@ function App() {
   // Shuffle capitals when region changes (for non-US States modes)
   useEffect(() => {
     if (!isUSStatesMode) {
-      needStartNewGameAfterShuffleRef.current = true
+      if (hasGameInitializedRef.current) {
+        needStartNewGameAfterShuffleRef.current = true
+      }
       setShuffledCapitals(shuffleArray(capitalsForRegion))
       setCapitalIndex(0)
     }
@@ -233,7 +235,9 @@ function App() {
   // Shuffle state capitals when switching to US States mode
   useEffect(() => {
     if (isUSStatesMode) {
-      needStartNewGameAfterShuffleRef.current = true
+      if (hasGameInitializedRef.current) {
+        needStartNewGameAfterShuffleRef.current = true
+      }
       setShuffledStateCapitals(shuffleArray(US_STATE_CAPITALS))
       setStateCapitalIndex(0)
     }
