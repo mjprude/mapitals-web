@@ -235,7 +235,7 @@ export function Header({
         </DialogContent>
       </Dialog>
 
-      <header className="bg-gradient-to-r from-[#7751f8] via-[#8b5cf6] to-[#06b6d4] p-3 shadow-lg z-50">
+      <header className="bg-gradient-to-r from-[#7751f8] via-[#8b5cf6] to-[#06b6d4] p-3 safe-top shadow-lg z-50">
         <div className="container mx-auto flex justify-between items-center">
           {isMobile ? (
           /* Mobile: Menu button, logo, and region selector on the left */
