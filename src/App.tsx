@@ -668,7 +668,7 @@ function App() {
             </div>
           </div>
 
-          <div className={`${isMobile ? 'fixed top-2' : 'absolute top-4'} right-4 bg-gradient-to-r from-rose-500 to-pink-500 px-3 py-2 rounded-xl backdrop-blur-sm flex items-center gap-2 shadow-lg shadow-rose-500/30`} style={{ zIndex: 1000 }}>
+          <div className={`${isMobile ? 'fixed safe-area-top-offset safe-area-right-offset' : 'absolute top-4 right-4'} bg-gradient-to-r from-rose-500 to-pink-500 px-3 py-2 rounded-xl backdrop-blur-sm flex items-center gap-2 shadow-lg shadow-rose-500/30`} style={{ zIndex: 1000 }}>
             <span className="text-white font-bold">
               {wrongGuesses} / {MAX_WRONG_GUESSES}
             </span>
@@ -731,7 +731,7 @@ function App() {
               />
             </div>
 
-            <div className={`pointer-events-auto w-full ${isMobile ? 'pb-6' : 'max-w-4xl px-4'} mt-3`}>
+            <div className={`pointer-events-auto w-full ${isMobile ? 'pb-6 safe-bottom' : 'max-w-4xl px-4'} mt-3`}>
               <Keyboard
                 ref={keyboardRef}
                 guessedLetters={guessedLetters}
