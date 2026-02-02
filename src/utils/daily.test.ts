@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { seededRandom, getDailyCapital } from './daily'
+import { seededRandom, getDailyCapital, generateShareText, generateAllRegionsShareText, DailyResult } from './daily'
+import type { Region } from '../capitals'
 
 describe('seededRandom', () => {
   it('returns the same sequence of numbers for the same seed', () => {
@@ -67,5 +68,87 @@ describe('getDailyCapital', () => {
     
     // These should be different (though could theoretically match)
     expect(worldCapital).not.toEqual(europeCapital)
+  })
+})
+
+describe('generateShareText', () => {
+  it('shows correct squares when won with 0 wrong guesses', () => {
+    const shareText = generateShareText('World', '2025-12-08', true, 0, 6)
+    expect(shareText).toContain('🟩🟩🟩🟩🟩🟩 0/6')
+  })
+
+  it('shows correct squares when won with some wrong guesses', () => {
+    const shareText = generateShareText('World', '2025-12-08', true, 3, 6)
+    expect(shareText).toContain('🟥🟥🟥🟩🟩🟩 3/6')
+  })
+
+  it('shows all red squares when lost (gave up) with few wrong guesses', () => {
+    const shareText = generateShareText('World', '2025-12-08', false, 2, 6)
+    expect(shareText).toContain('🟥🟥🟥🟥🟥🟥 X/6')
+  })
+
+  it('shows all red squares when lost (gave up) with no wrong guesses', () => {
+    const shareText = generateShareText('World', '2025-12-08', false, 0, 6)
+    expect(shareText).toContain('🟥🟥🟥🟥🟥🟥 X/6')
+  })
+
+  it('shows all red squares when lost at max wrong guesses', () => {
+    const shareText = generateShareText('Europe', '2025-12-08', false, 6, 6)
+    expect(shareText).toContain('🟥🟥🟥🟥🟥🟥 X/6')
+  })
+
+  it('includes region name in share text', () => {
+    const shareText = generateShareText('Asia', '2025-12-08', true, 2, 6)
+    expect(shareText).toContain('Mapitals Daily - Asia')
+  })
+
+  it('includes URL in share text', () => {
+    const shareText = generateShareText('World', '2025-12-08', true, 2, 6)
+    expect(shareText).toContain('https://www.mapitals.com')
+  })
+})
+
+describe('generateAllRegionsShareText', () => {
+  it('shows correct squares for mixed wins and losses', () => {
+    const results = new Map<Region, DailyResult | null>([
+      ['World', { won: true, wrongGuesses: 2, guessedLetters: [] }],
+      ['Europe', { won: false, wrongGuesses: 3, guessedLetters: [] }],
+      ['Asia', { won: true, wrongGuesses: 0, guessedLetters: [] }]
+    ])
+    
+    const shareText = generateAllRegionsShareText('2025-12-08', results, 6)
+    expect(shareText).toContain('World: 🟥🟥🟩🟩🟩🟩 2/6')
+    expect(shareText).toContain('Europe: 🟥🟥🟥🟥🟥🟥 X/6')
+    expect(shareText).toContain('Asia: 🟩🟩🟩🟩🟩🟩 0/6')
+  })
+
+  it('shows all red squares for all losses', () => {
+    const results = new Map<Region, DailyResult | null>([
+      ['World', { won: false, wrongGuesses: 1, guessedLetters: [] }],
+      ['Europe', { won: false, wrongGuesses: 5, guessedLetters: [] }]
+    ])
+    
+    const shareText = generateAllRegionsShareText('2025-12-08', results, 6)
+    expect(shareText).toContain('World: 🟥🟥🟥🟥🟥🟥 X/6')
+    expect(shareText).toContain('Europe: 🟥🟥🟥🟥🟥🟥 X/6')
+  })
+
+  it('includes total score and wins', () => {
+    const results = new Map<Region, DailyResult | null>([
+      ['World', { won: true, wrongGuesses: 2, guessedLetters: [] }],
+      ['Europe', { won: false, wrongGuesses: 3, guessedLetters: [] }]
+    ])
+    
+    const shareText = generateAllRegionsShareText('2025-12-08', results, 6)
+    expect(shareText).toContain('1/2 wins')
+  })
+
+  it('includes URL in share text', () => {
+    const results = new Map<Region, DailyResult | null>([
+      ['World', { won: true, wrongGuesses: 2, guessedLetters: [] }]
+    ])
+    
+    const shareText = generateAllRegionsShareText('2025-12-08', results, 6)
+    expect(shareText).toContain('https://www.mapitals.com')
   })
 })

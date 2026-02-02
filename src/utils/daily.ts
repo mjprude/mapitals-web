@@ -122,7 +122,12 @@ export function generateShareText(
   
   const squares = Array(maxWrongGuesses)
     .fill(null)
-    .map((_, i) => (i < wrongGuesses ? '🟥' : '🟩'))
+    .map((_, i) => {
+      // If lost (gave up), all squares should be red
+      if (!won) return '🟥'
+      // If won, red for wrong guesses, green for remaining
+      return i < wrongGuesses ? '🟥' : '🟩'
+    })
     .join('')
   
   return `Mapitals Daily - ${region}
@@ -186,7 +191,12 @@ Score: ${totalScore} | ${totalWins}/${totalRegions} wins
     if (result) {
       const squares = Array(maxWrongGuesses)
         .fill(null)
-        .map((_, i) => (i < result.wrongGuesses ? '🟥' : '🟩'))
+        .map((_, i) => {
+          // If lost (gave up), all squares should be red
+          if (!result.won) return '🟥'
+          // If won, red for wrong guesses, green for remaining
+          return i < result.wrongGuesses ? '🟥' : '🟩'
+        })
         .join('')
       const resultText = result.won ? result.wrongGuesses : 'X'
       shareText += `${region}: ${squares} ${resultText}/${maxWrongGuesses}\n`
