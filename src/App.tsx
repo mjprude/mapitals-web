@@ -597,6 +597,13 @@ function App() {
     ? (currentStateCapital ? (gameOver || showRegionHint ? currentStateCapital.state : getDisplayText(currentStateCapital.state)) : '')
     : (currentCapital ? (gameOver || showRegionHint ? currentCapital.country : getDisplayText(currentCapital.country)) : '')
 
+  // Check if completing the current region would complete all regions (only in daily mode)
+  const isLastRegion = useMemo(() => {
+    if (gameMode !== 'daily') return false
+    // Check if all other regions are completed
+    return REGION_ORDER.filter(r => r !== region).every(r => isDailyCompleted(r, todayDate))
+  }, [gameMode, region, todayDate])
+
   return (
     <div className="min-h-screen-safe bg-slate-900 text-white">
       <div className="flex flex-col h-screen-safe">
@@ -704,6 +711,7 @@ function App() {
               region={region}
               todayDate={todayDate}
               fadeIn={won}
+              isLastRegion={isLastRegion}
             />
           )}
 

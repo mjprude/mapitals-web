@@ -17,6 +17,7 @@ interface GameOverModalProps {
   region: Region
   todayDate: string
   fadeIn?: boolean
+  isLastRegion?: boolean
 }
 
 interface WikipediaBlurb {
@@ -35,6 +36,7 @@ export function GameOverModal({
   region,
   todayDate,
   fadeIn = false,
+  isLastRegion = false,
 }: GameOverModalProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
@@ -232,7 +234,7 @@ export function GameOverModal({
             onClick={onPlayAgain}
             className={`${gameMode === 'daily' ? 'flex-1' : 'w-full'} bg-gradient-to-r from-emerald-400 to-emerald-600 hover:from-emerald-300 hover:to-emerald-500 text-white font-bold text-lg py-3 rounded-xl shadow-lg shadow-emerald-500/40 transition-all hover:scale-[1.02]`}
           >
-            {gameMode === 'daily' ? 'Next Region' : 'Play Again'}
+            {gameMode === 'daily' ? (isLastRegion ? 'See Your Scores' : 'Next Region') : 'Play Again'}
           </Button>
         </div>
       </div>
