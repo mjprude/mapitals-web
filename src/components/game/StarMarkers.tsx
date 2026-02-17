@@ -1,4 +1,4 @@
-import { Marker, Tooltip } from 'react-leaflet'
+import { Marker } from 'react-leaflet'
 import L from 'leaflet'
 
 export interface CompletedCapital {
@@ -49,23 +49,13 @@ export function StarMarkers({ completedCapitals }: StarMarkersProps) {
       {completedCapitals.map((capital, index) => {
         const color = getStarColor(capital.wrongGuesses)
         const icon = createStarIcon(color)
-        const guessText = capital.wrongGuesses === 0 
-          ? 'Perfect! No wrong guesses' 
-          : `${capital.wrongGuesses} wrong guess${capital.wrongGuesses === 1 ? '' : 'es'}`
         
         return (
           <Marker
             key={`${capital.city}-${capital.lat}-${capital.lng}-${index}`}
             position={[capital.lat, capital.lng]}
             icon={icon}
-          >
-            <Tooltip direction="top" offset={[0, -9]} opacity={0.9}>
-              <div className="text-center">
-                <div className="font-semibold">{capital.city}</div>
-                <div className="text-sm">{guessText}</div>
-              </div>
-            </Tooltip>
-          </Marker>
+          />
         )
       })}
     </>
