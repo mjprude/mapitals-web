@@ -20,6 +20,30 @@ html, body, #root {
   min-height: 100dvh;
 }
 
+/* iOS PWA safe area support - only adds padding when safe area insets exist */
+@supports (padding: max(0px)) {
+  .safe-top {
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+  }
+  
+  .safe-bottom {
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+}
+
+/* For positioned elements on mobile - only active when safe areas exist */
+@media (max-width: 768px) {
+  @supports (top: max(0px)) {
+    .safe-area-mobile-top {
+      top: max(0.5rem, env(safe-area-inset-top));
+    }
+    
+    .safe-area-mobile-right {
+      right: max(1rem, env(safe-area-inset-right));
+    }
+  }
+}
+
 .leaflet-container {
   background: linear-gradient(to right, #7751f8, #8b5cf6, #06b6d4) !important;
 }
