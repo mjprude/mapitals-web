@@ -1,6 +1,7 @@
 import { forwardRef, useEffect } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 
 vi.mock('react-leaflet', () => ({
@@ -9,8 +10,8 @@ vi.mock('react-leaflet', () => ({
   GeoJSON: () => null,
 }))
 
-vi.mock('./utils/daily', async importOriginal => {
-  const actual = await importOriginal<typeof import('./utils/daily')>()
+vi.mock('./utils/daily', async () => {
+  const actual = await vi.importActual<typeof import('./utils/daily')>('./utils/daily')
   return {
     ...actual,
     areAllRegionsCompleted: vi.fn(() => false),
@@ -23,7 +24,7 @@ vi.mock('./components/game', () => ({
   StarMarkers: () => null,
   InfoModal: () => null,
   AllRegionsCompleteModal: () => <div>All regions complete</div>,
-  Keyboard: forwardRef<HTMLDivElement, { onGuess: (letter: string) => void; fullText: string }>(
+  Keyboard: forwardRef<HTMLButtonElement, { onGuess: (letter: string) => void; fullText: string }>(
     ({ onGuess, fullText }, ref) => (
       <button
         ref={ref}
