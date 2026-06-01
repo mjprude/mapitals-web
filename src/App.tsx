@@ -310,6 +310,8 @@ function App() {
 
   // Handler for game over primary action (Next Region in daily mode, Play Again in practice mode)
   const handleGameOverPrimaryAction = useCallback(() => {
+    setShowGameOverModal(false)
+
     if (gameMode === 'daily') {
       // Check if all regions are now complete
       if (areAllRegionsCompleted(todayDate, REGION_ORDER)) {
