@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { US_CENTER } from '@/constants/game'
+import { matchesTargetName } from '@/utils/mapNameMatching'
 
 export interface MapControllerProps {
   zoom: number
@@ -48,10 +49,10 @@ export function MapController({
         const feature = geoJson.features.find(f => {
           if (isUSStatesMode) {
             const stateName = f.properties?.NAME || f.properties?.name
-            return stateName?.toLowerCase() === targetName.toLowerCase()
+            return typeof stateName === 'string' && matchesTargetName(stateName, targetName, true)
           } else {
             const countryName = f.properties?.ADMIN || f.properties?.name
-            return countryName?.toLowerCase() === targetName.toLowerCase()
+            return typeof countryName === 'string' && matchesTargetName(countryName, targetName, false)
           }
         })
         
