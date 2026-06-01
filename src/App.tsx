@@ -9,6 +9,7 @@ import { Region, Capital, StateCapital, CAPITALS, US_STATE_CAPITALS, REGION_ORDE
 import { useIsMobile } from './hooks/use-mobile'
 import { MAX_WRONG_GUESSES, ADJUSTED_ZOOM_LEVELS } from './constants/game'
 import { shuffleArray } from './utils/shuffle'
+import { matchesTargetName } from './utils/mapNameMatching'
 import { 
   GameMode,
   getTodayDateString,
@@ -655,7 +656,10 @@ function App() {
                     style={getCountryStyle}
                     filter={(feature) => {
                       const countryName = feature.properties?.ADMIN || feature.properties?.name
-                      return countryName?.toLowerCase() === currentCapital.country.toLowerCase()
+                      return (
+                        typeof countryName === 'string' &&
+                        matchesTargetName(countryName, currentCapital.country, false)
+                      )
                     }}
                   />
                 )}
