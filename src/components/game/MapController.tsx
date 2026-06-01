@@ -3,7 +3,6 @@ import { useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { US_CENTER } from '@/constants/game'
 import { matchesTargetName } from '@/utils/mapNameMatching'
-import { getFallbackGameOverZoom } from '@/utils/mapZoom'
 
 export interface MapControllerProps {
   zoom: number
@@ -65,14 +64,12 @@ export function MapController({
           map.once('moveend', () => setShowOutline(true))
           map.flyTo(center, targetZoom, { duration: 1.5, easeLinearity: 0.2 })
         } else {
-          const fallbackZoom = getFallbackGameOverZoom(zoom)
           map.once('moveend', () => setShowOutline(true))
-          map.flyTo(center, fallbackZoom, { duration: 1, easeLinearity: 0.2 })
+          map.flyTo(center, zoom, { duration: 1, easeLinearity: 0.2 })
         }
       } else {
-        const fallbackZoom = getFallbackGameOverZoom(zoom)
         map.once('moveend', () => setShowOutline(true))
-        map.flyTo(center, fallbackZoom, { duration: 1, easeLinearity: 0.2 })
+        map.flyTo(center, zoom, { duration: 1, easeLinearity: 0.2 })
       }
     }
   }, [zoom, center, map, isInitial, shouldPan, setShouldPan, gameOver, isUSStatesMode, countryGeoJson, statesGeoJson, targetName, setShowOutline])
